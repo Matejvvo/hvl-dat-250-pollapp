@@ -1,6 +1,7 @@
 package no.hvl.dat250.pollapp.model;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Vote {
@@ -49,9 +50,24 @@ public class Vote {
         this.option = option;
     }
 
-    // --- Printer ---
+    // --- Overrides ---
     @Override
     public String toString() {
-        return "Vote{" + "id=" + id + ", publishedAt=" + publishedAt + ", voter=" + (voter != null ? voter.getUsername() : "null") + ", option=" + (option != null ? option.getCaption() : "null") + '}';
+        return "Vote{" + "id=" + id + ", publishedAt=" + publishedAt + ", voter="
+                + (voter != null ? voter.getUsername() : "null") + ", option="
+                + (option != null ? option.getCaption() : "null") + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || this.getClass() != o.getClass()) return false;
+        Vote that = (Vote) o;
+        return Objects.equals(this.id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

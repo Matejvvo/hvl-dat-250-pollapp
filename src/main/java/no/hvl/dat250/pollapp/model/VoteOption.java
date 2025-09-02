@@ -1,5 +1,8 @@
 package no.hvl.dat250.pollapp.model;
 
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 public class VoteOption {
@@ -10,6 +13,7 @@ public class VoteOption {
 
     // --- Associations ---
     private Poll poll;
+    private Set<Vote> votes = new HashSet<>();
 
     // --- Public Bean Constructor ---
     public VoteOption() {
@@ -48,9 +52,32 @@ public class VoteOption {
         this.poll = poll;
     }
 
-    // --- Printer ---
+    public Set<Vote> getVotes() {
+        return votes;
+    }
+
+    public void setVotes(Set<Vote> votes) {
+        this.votes = votes;
+    }
+
+    // --- Overrides ---
     @Override
     public String toString() {
-        return "VoteOption{" + "id=" + id + ", caption='" + caption + '\'' + ", presentationOrder=" + presentationOrder + ", pollId=" + (poll != null ? poll.getId() : "null") + '}';
+        return "VoteOption{" + "id=" + id + ", caption='" + caption + '\''
+                + ", presentationOrder=" + presentationOrder + ", pollId="
+                + (poll != null ? poll.getId() : "null") + ", votes=" + votes.size() + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || this.getClass() != o.getClass()) return false;
+        VoteOption that = (VoteOption) o;
+        return Objects.equals(this.id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

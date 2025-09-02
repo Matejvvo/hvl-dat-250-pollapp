@@ -1,6 +1,7 @@
 package no.hvl.dat250.pollapp.model;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -8,11 +9,10 @@ public class User {
     // --- Attributes --
     private UUID id;
     private String username;
-    private String password;
     private String email;
 
     // Associations
-    private Set<Poll> createdPolls = new HashSet<>();
+    private Set<Poll> polls = new HashSet<>();
     private Set<Vote> votes = new HashSet<>();
 
     // --- Public Bean Constructor ---
@@ -36,14 +36,6 @@ public class User {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -52,12 +44,12 @@ public class User {
         this.email = email;
     }
 
-    public Set<Poll> getCreatedPolls() {
-        return createdPolls;
+    public Set<Poll> getPolls() {
+        return polls;
     }
 
-    public void setCreatedPolls(Set<Poll> createdPolls) {
-        this.createdPolls = createdPolls;
+    public void setPolls(Set<Poll> polls) {
+        this.polls = polls;
     }
 
     public Set<Vote> getVotes() {
@@ -68,9 +60,24 @@ public class User {
         this.votes = votes;
     }
 
-    // --- Printer ---
+    // --- Overrides ---
     @Override
     public String toString() {
-        return "User{" + "id=" + id + ", username='" + username + '\'' + ", email='" + email + '\'' + ", password='" + password + '\'' + ", createdPolls=" + createdPolls.size() + ", votes=" + votes.size() + '}';
+        return "User{" + "id=" + id + ", username='" + username + '\'' + ", email='"
+                + email + '\'' + '\'' + ", createdPolls="
+                + polls.size() + ", votes=" + votes.size() + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || this.getClass() != o.getClass()) return false;
+        User that = (User) o;
+        return Objects.equals(this.id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
