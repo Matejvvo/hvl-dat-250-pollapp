@@ -1,15 +1,12 @@
-name: Demo Java CI with Gradle (task01)
+name: Lab 01 Gradle Demo
 
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - "task01/helloworld/**"
-      - ".github/workflows/task01-gradle-demo.yml"
 
 defaults:
   run:
-    working-directory: ./task01/helloworld
+    working-directory: .
 
 jobs:
   build:
@@ -48,6 +45,3 @@ jobs:
 
       - name: Generate and submit dependency graph
         uses: gradle/actions/dependency-submission@v4
-        with:
-          build-root-directory: ./task01/helloworld
-
