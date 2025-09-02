@@ -139,6 +139,8 @@ public class PollManager {
         return VoteDTO.from(vote);
     }
 
+    /*
+
     // --- CRUD Poll ---
     public PollDTO createPoll(PollDTO poll);
     public List<PollDTO> listPolls();
@@ -175,6 +177,8 @@ public class PollManager {
     public VoteDTO getVote(UUID voteId);
     public VoteDTO updateUserVote(UUID userId, UUID voteId, VoteDTO voteDto);
     public VoteDTO deleteUserVote(UUID userId, UUID voteId);
+
+     */
 
     // --- Endpoints ---
     /*
