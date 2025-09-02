@@ -7,15 +7,18 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class PollManager {
+    // --- Manager ---
     private final Map<UUID, User> users = new HashMap<>();
     private final Map<UUID, Poll> polls = new HashMap<>();
-
     public PollManager() {
+        return;
     }
 
+    // --- Factory Methods ---
     public UserDTO createNewUser(String username, String email) {
         if (username == null || username.isBlank()) return null;
         if (email == null || email.isBlank()) return null;
@@ -135,4 +138,67 @@ public class PollManager {
         voter.getVotes().add(vote);
         return VoteDTO.from(vote);
     }
+
+    // --- CRUD Poll ---
+    public PollDTO createPoll(PollDTO poll);
+    public List<PollDTO> listPolls();
+    public PollDTO getPoll(UUID pollId);
+    public PollDTO updatePoll(UUID pollId, PollDTO poll);
+    public PollDTO deletePoll(UUID pollId);
+    public String getPollAggregatedResults(UUID pollId);
+
+    // --- CRUD Poll VoteOption ---
+    public VoteOptionDTO addPollVoteOption(UUID pollId, VoteOptionDTO option);
+    public List<VoteOptionDTO> listPollVoteOptions(UUID pollId);
+    public VoteOptionDTO updatePollVoteOption(UUID pollId, UUID optionId, VoteOptionDTO option);
+    public VoteOptionDTO deletePollVoteOption(UUID pollId, UUID optionId);
+
+    // --- CRUD Poll Allowed Voters ---
+    public UserDTO addAllowedVoter(UUID pollId, UUID userId);
+    public List<UserDTO> listAllowedVoters(UUID pollId);
+    public UserDTO removeAllowedVoter(UUID pollId, UUID userId);
+
+    // --- CRUD User ---
+    public UserDTO createUser(UserDTO user);
+    public List<UserDTO> listUsers();
+    public UserDTO getUser(UUID userId);
+    public UserDTO updateUser(UUID userId, UserDTO user);
+    public UserDTO deleteUser(UUID userId);
+
+    // --- CRUD User Polls & Votes ---
+    public List<PollDTO> listUserPolls(UUID userId);
+    public List<VoteDTO> listUserVotes(UUID userId);
+
+    // --- CRUD Vote ---
+    public VoteDTO castVote(UUID userId, UUID pollId, VoteDTO vote);
+    public List<VoteDTO> listPollVotes(UUID pollId);
+    public VoteDTO getVote(UUID voteId);
+    public VoteDTO updateUserVote(UUID userId, UUID voteId, VoteDTO voteDto);
+    public VoteDTO deleteUserVote(UUID userId, UUID voteId);
+
+    // --- Endpoints ---
+    /*
+    •	POST    /api/polls → createPoll
+	•	GET     /api/polls → listPolls
+	•	GET     /api/polls/{pollId} → getPoll
+	•	PATCH   /api/polls/{pollId} → updatePoll
+	•	DELETE  /api/polls/{pollId} → deletePoll
+	•	GET     /api/polls/{pollId}/results → show aggregated results
+	•	POST    /api/polls/{pollId}/options → addPollVoteOption
+	•	GET     /api/polls/{pollId}/options → listPollVoteOptions
+	•	PATCH   /api/polls/{pollId}/options/{optionId} → updatePollVoteOption
+	•	DELETE  /api/polls/{pollId}/options/{optionId} → deletePollVoteOption
+	•	POST    /api/polls/{pollId}/allowed-voters → addAllowedVoter
+	•	GET     /api/polls/{pollId}/allowed-voters → listAllowedVoters
+	•	DELETE /api/polls/{pollId}/allowed-voters/{userId} → removeAllowedVoter
+	•	POST    /api/polls/{pollId}/votes → castVote
+	•	GET     /api/polls/{pollId}/votes → listPollVotes
+	•	GET     /api/votes/{voteId} → getVote
+	•	PATCH   /api/votes/{voteId} → updateUserVote (or updateVote)
+	•	DELETE  /api/votes/{voteId} → deleteUserVote (or deleteVote)
+	•	GET     /api/users/{userId}/polls → listUserPolls
+	•	GET     /api/users/{userId}/votes → listUserVotes
+	•	Users CRUD under
+	            /api/users/...
+     */
 }
