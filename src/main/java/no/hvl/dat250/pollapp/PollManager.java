@@ -1,9 +1,8 @@
 package no.hvl.dat250.pollapp;
 
-import no.hvl.dat250.pollapp.model.Poll;
-import no.hvl.dat250.pollapp.model.User;
-import no.hvl.dat250.pollapp.model.Vote;
-import no.hvl.dat250.pollapp.model.VoteOption;
+import no.hvl.dat250.pollapp.model.*;
+import no.hvl.dat250.pollapp.dto.*;
+
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -17,24 +16,22 @@ public class PollManager {
     public PollManager() {
     }
 
-    public User createNewUser(String username, String passwordHash, String email) {
+    public UserDTO createNewUser(String username, String email) {
         if (username == null || username.isBlank()) return null;
-        if (passwordHash == null || passwordHash.isBlank()) return null;
         if (email == null || email.isBlank()) return null;
 
         User user = new User();
         user.setId(UUID.randomUUID());
         user.setUsername(username.trim());
-        user.setPassword(passwordHash.trim());
         user.setEmail(email.trim());
         user.setPolls(new HashSet<>());
         user.setVotes(new HashSet<>());
 
         users.put(user.getId(), user);
-        return user;
+        return UserDTO.from(user);
     }
 
-    public Poll createNewPoll(String question, int maxVotesPerUser, boolean isPrivate,
+    public PollDTO createNewPoll(String question, int maxVotesPerUser, boolean isPrivate,
                               UUID creatorId, Instant publishedAt, Instant validUntil) {
         if (question == null || question.isBlank()) return null;
         if (maxVotesPerUser <= 0 || creatorId == null) return null;
@@ -56,7 +53,7 @@ public class PollManager {
 
         creator.getPolls().add(poll);
         polls.put(poll.getId(), poll);
-        return poll;
+        return PollDTO.from(poll);
     }
 
     public boolean addVoterToPoll(UUID pollId, UUID userId) {
@@ -72,7 +69,7 @@ public class PollManager {
         return true;
     }
 
-    public VoteOption addOptionToPoll(UUID pollId, String caption) {
+    public VoteOptionDTO addOptionToPoll(UUID pollId, String caption) {
         if (pollId == null || caption == null || caption.isBlank()) return null;
 
         Poll poll = polls.get(pollId);
@@ -93,10 +90,10 @@ public class PollManager {
         voteOption.setVotes(new HashSet<>());
 
         poll.getOptions().add(voteOption);
-        return voteOption;
+        return VoteOptionDTO.from(voteOption);
     }
 
-    public Vote castVote(UUID pollId, UUID voterId, UUID optionId) {
+    public VoteDTO castVote(UUID pollId, UUID voterId, UUID optionId) {
         if (pollId == null || voterId == null || optionId == null) return null;
 
         Poll poll = polls.get(pollId);
@@ -136,6 +133,6 @@ public class PollManager {
 
         selectedOption.getVotes().add(vote);
         voter.getVotes().add(vote);
-        return vote;
+        return VoteDTO.from(vote);
     }
 }
