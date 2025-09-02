@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 //   http://localhost:8080/goodbye?name=Matej
 //   curl -X POST "http://localhost:8080/greet?name=Matej"
 
-@SpringBootApplication
+//@SpringBootApplication
 @RestController
 public class HelloWorld {
     public static void main(String[] args) {
