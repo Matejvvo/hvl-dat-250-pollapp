@@ -3,12 +3,15 @@ package no.hvl.dat250.pollapp.repo.inmem;
 import no.hvl.dat250.pollapp.model.User;
 import no.hvl.dat250.pollapp.repo.UserRepo;
 
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+@Component
 public class UserRepoInMem implements UserRepo {
     private final Map<UUID, User> store = new HashMap<>();
 

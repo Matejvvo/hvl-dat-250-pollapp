@@ -22,15 +22,17 @@ public interface PollService {
 
     List<VoteOption> listVoteOptions(UUID pollId);
 
-    // VoteOption updateVoteOption(UUID pollId, UUID optionId, VoteOption option);
-
     void removeVoteOption(UUID pollId, UUID optionId);
 
     User addAllowedVoter(UUID pollId, UUID userId);
 
     List<User> listAllowedVoters(UUID pollId);
 
-    User removeAllowedVoter(UUID pollId, UUID userId);
+    void removeAllowedVoter(UUID pollId, UUID userId);
+
+    Vote castVote(UUID voterId, UUID pollId, UUID optionId);
+
+    List<Vote> listPollVotes(UUID pollId);
 
     String getAggregatedResults(UUID pollId);
 }

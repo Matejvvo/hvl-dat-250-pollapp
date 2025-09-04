@@ -1,30 +1,29 @@
 package no.hvl.dat250.pollapp.service.impl;
 
-import no.hvl.dat250.pollapp.model.Poll;
-import no.hvl.dat250.pollapp.model.User;
-import no.hvl.dat250.pollapp.model.Vote;
-import no.hvl.dat250.pollapp.repo.PollRepo;
-import no.hvl.dat250.pollapp.repo.UserRepo;
-import no.hvl.dat250.pollapp.repo.VoteRepo;
+import no.hvl.dat250.pollapp.model.*;
+import no.hvl.dat250.pollapp.repo.*;
 import no.hvl.dat250.pollapp.service.UserService;
+
+import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
     private final PollRepo pollRepo;
     private final VoteRepo voteRepo;
 
-    public UserServiceImpl(UserRepo userRepo, PollRepo pollRepo, VoteRepo voteRepo) {
+    public UserServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo) {
         this.userRepo = userRepo;
         this.pollRepo = pollRepo;
         this.voteRepo = voteRepo;
     }
 
     @Override
-    public User create(String username, String email) {
+    public User create(String username, String email, String _passwordHash) {
         if (username == null || username.isBlank()) return null;
         if (email == null || email.isBlank()) return null;
 

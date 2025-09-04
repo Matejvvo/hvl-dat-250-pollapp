@@ -1,23 +1,21 @@
 package no.hvl.dat250.pollapp.service.impl;
 
-import no.hvl.dat250.pollapp.model.Poll;
-import no.hvl.dat250.pollapp.model.User;
-import no.hvl.dat250.pollapp.model.Vote;
-import no.hvl.dat250.pollapp.model.VoteOption;
-import no.hvl.dat250.pollapp.repo.PollRepo;
-import no.hvl.dat250.pollapp.repo.UserRepo;
-import no.hvl.dat250.pollapp.repo.VoteRepo;
+import no.hvl.dat250.pollapp.model.*;
+import no.hvl.dat250.pollapp.repo.*;
 import no.hvl.dat250.pollapp.service.PollService;
+
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
 
+@Service
 public class PollServiceImpl implements PollService {
     private final UserRepo userRepo;
     private final PollRepo pollRepo;
     private final VoteRepo voteRepo;
 
-    public PollServiceImpl(UserRepo userRepo, PollRepo pollRepo, VoteRepo voteRepo) {
+    public PollServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo) {
         this.userRepo = userRepo;
         this.pollRepo = pollRepo;
         this.voteRepo = voteRepo;
@@ -170,18 +168,70 @@ public class PollServiceImpl implements PollService {
     }
 
     @Override
-    public User removeAllowedVoter(UUID pollId, UUID userId) {
-        if (pollId == null || userId == null) return null;
+    public void removeAllowedVoter(UUID pollId, UUID userId) {
+        if (pollId == null || userId == null) return;
 
         Poll poll = pollRepo.findById(pollId);
-        if (poll == null || poll.getAllowedVoters() == null) return null;
+        if (poll == null || poll.getAllowedVoters() == null) return;
 
         User user = userRepo.findById(userId);
-        if (user == null) return null;
+        if (user == null) return;
 
         poll.getAllowedVoters().remove(user);
+    }
 
-        return user;
+    @Override
+    public Vote castVote(UUID voterId, UUID pollId, UUID optionId) {
+        if (pollId == null || voterId == null || optionId == null) return null;
+
+        Poll poll = pollRepo.findById(pollId);
+        User voter = userRepo.findById(voterId);
+        Instant now = Instant.now();
+        if (poll == null || voter == null) return null;
+        if (now.isAfter(poll.getValidUntil()) || now.isBefore(poll.getPublishedAt())) return null;
+
+        // Check if voter is allowed
+        if (poll.getIsPrivate() && !poll.getAllowedVoters().contains(voter)) return null;
+
+        // Find the option within this poll
+        VoteOption selectedOption = poll.getOptions().stream()
+                .filter(opt -> optionId.equals(opt.getId()))
+                .findFirst()
+                .orElse(null);
+        if (selectedOption == null) return null;
+
+        // Count this voter's votes in this poll
+        long userVoteCount = voter.getVotes().stream()
+                .filter(v -> v.getOption() != null
+                        && v.getOption().getPoll() != null
+                        && pollId.equals(v.getOption().getPoll().getId()))
+                .count();
+        if (userVoteCount >= poll.getMaxVotesPerUser()) return null;
+
+        // Prevent multiple votes for the same option
+        boolean alreadyVotedThisOption = voter.getVotes().stream()
+                .anyMatch(v -> v.getOption() != null && optionId.equals(v.getOption().getId()));
+        if (alreadyVotedThisOption) return null;
+
+        Vote vote = new Vote();
+        vote.setId(UUID.randomUUID());
+        vote.setPublishedAt(Instant.now());
+        vote.setVoter(voter);
+        vote.setOption(selectedOption);
+
+        vote = voteRepo.save(vote);
+        if (selectedOption.getVotes() == null || voter.getVotes() == null) return null;
+        selectedOption.getVotes().add(vote);
+        voter.getVotes().add(vote);
+        return vote;
+    }
+
+    @Override
+    public List<Vote> listPollVotes(UUID pollId) {
+        if (pollId == null) return List.of();
+        if (!pollRepo.existsById(pollId)) return List.of();
+        return pollRepo.findById(pollId).getOptions().stream()
+                .flatMap(opt -> opt.getVotes().stream()).toList();
     }
 
     @Override

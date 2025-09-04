@@ -1,87 +1,31 @@
 package no.hvl.dat250.pollapp.service.impl;
 
-import no.hvl.dat250.pollapp.model.Poll;
-import no.hvl.dat250.pollapp.model.User;
-import no.hvl.dat250.pollapp.model.Vote;
-import no.hvl.dat250.pollapp.model.VoteOption;
-import no.hvl.dat250.pollapp.repo.PollRepo;
-import no.hvl.dat250.pollapp.repo.UserRepo;
-import no.hvl.dat250.pollapp.repo.VoteRepo;
+import no.hvl.dat250.pollapp.model.*;
+import no.hvl.dat250.pollapp.repo.*;
 import no.hvl.dat250.pollapp.service.VoteService;
+
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class VoteServiceImpl implements VoteService {
     private final UserRepo userRepo;
     private final PollRepo pollRepo;
     private final VoteRepo voteRepo;
 
-    public VoteServiceImpl(UserRepo userRepo, PollRepo pollRepo, VoteRepo voteRepo) {
+    public VoteServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo) {
         this.userRepo = userRepo;
         this.pollRepo = pollRepo;
         this.voteRepo = voteRepo;
     }
 
     @Override
-    public Vote castVote(UUID voterId, UUID pollId, UUID optionId) {
-        if (pollId == null || voterId == null || optionId == null) return null;
-
-        Poll poll = pollRepo.findById(pollId);
-        User voter = userRepo.findById(voterId);
-        Instant now = Instant.now();
-        if (poll == null || voter == null) return null;
-        if (now.isAfter(poll.getValidUntil()) || now.isBefore(poll.getPublishedAt())) return null;
-
-        // Check if voter is allowed
-        if (poll.getIsPrivate() && !poll.getAllowedVoters().contains(voter)) return null;
-
-        // Find the option within this poll
-        VoteOption selectedOption = poll.getOptions().stream()
-                .filter(opt -> optionId.equals(opt.getId()))
-                .findFirst()
-                .orElse(null);
-        if (selectedOption == null) return null;
-
-        // Count this voter's votes in this poll
-        long userVoteCount = voter.getVotes().stream()
-                .filter(v -> v.getOption() != null
-                        && v.getOption().getPoll() != null
-                        && pollId.equals(v.getOption().getPoll().getId()))
-                .count();
-        if (userVoteCount >= poll.getMaxVotesPerUser()) return null;
-
-        // Prevent multiple votes for the same option
-        boolean alreadyVotedThisOption = voter.getVotes().stream()
-                .anyMatch(v -> v.getOption() != null && optionId.equals(v.getOption().getId()));
-        if (alreadyVotedThisOption) return null;
-
-        Vote vote = new Vote();
-        vote.setId(UUID.randomUUID());
-        vote.setPublishedAt(Instant.now());
-        vote.setVoter(voter);
-        vote.setOption(selectedOption);
-
-        vote = voteRepo.save(vote);
-        if (selectedOption.getVotes() == null || voter.getVotes() == null) return null;
-        selectedOption.getVotes().add(vote);
-        voter.getVotes().add(vote);
-        return vote;
-    }
-
-    @Override
     public List<Vote> list() {
         if (voteRepo.empty()) return List.of();
         return voteRepo.findAll().stream().toList();
-    }
-
-    @Override
-    public List<Vote> listPollVotes(UUID pollId) {
-        if (pollId == null) return List.of();
-        if (!pollRepo.existsById(pollId)) return List.of();
-        return pollRepo.findById(pollId).getOptions().stream()
-                .flatMap(opt -> opt.getVotes().stream()).toList();
     }
 
     @Override
@@ -92,7 +36,7 @@ public class VoteServiceImpl implements VoteService {
     }
 
     @Override
-    public Vote update(UUID userId, UUID voteId, UUID optionId) {
+    public Vote update(UUID voteId, UUID userId, UUID optionId) {
         if (userId == null || voteId == null || optionId == null) return null;
         if (!userRepo.existsById(userId) || !voteRepo.existsById(voteId)) return null;
 
@@ -147,18 +91,15 @@ public class VoteServiceImpl implements VoteService {
     }
 
     @Override
-    public void delete(UUID userId, UUID voteId) {
-        if (userId == null || voteId == null) return;
-        if (!userRepo.existsById(userId) || !voteRepo.existsById(voteId)) return;
+    public void delete(UUID voteId) {
+        if (voteId == null || !voteRepo.existsById(voteId)) return;
 
-        User user = userRepo.findById(userId);
         Vote vote = voteRepo.findById(voteId);
-        if (user == null || vote == null) return;
+        if (vote == null) return;
 
         User owner = vote.getVoter();
         VoteOption option = vote.getOption();
-
-        if (owner == null || option == null || !owner.getId().equals(userId)) return;
+        if (owner == null || option == null) return;
 
         if (owner.getVotes() != null) owner.getVotes().remove(vote);
         if (option.getVotes() != null) option.getVotes().remove(vote);

@@ -3,12 +3,15 @@ package no.hvl.dat250.pollapp.repo.inmem;
 import no.hvl.dat250.pollapp.model.Vote;
 import no.hvl.dat250.pollapp.repo.VoteRepo;
 
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+@Component
 public class VoteRepoInMem implements VoteRepo {
     private final Map<UUID, Vote> store = new HashMap<>();
 

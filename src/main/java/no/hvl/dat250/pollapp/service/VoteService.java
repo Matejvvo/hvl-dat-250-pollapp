@@ -6,15 +6,11 @@ import java.util.List;
 import java.util.UUID;
 
 public interface VoteService {
-    Vote castVote(UUID voterId, UUID pollId, UUID optionId);
-
     List<Vote> list();
-
-    List<Vote> listPollVotes(UUID pollId);
 
     Vote get(UUID voteId);
 
-    Vote update(UUID userId, UUID voteId, UUID optionId);
+    Vote update(UUID voteId, UUID userId, UUID optionId);
 
-    void delete(UUID userId, UUID voteId);
+    void delete(UUID voteId);
 }
