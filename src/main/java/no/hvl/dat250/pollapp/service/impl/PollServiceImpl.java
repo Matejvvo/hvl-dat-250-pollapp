@@ -186,7 +186,117 @@ public class PollServiceImpl implements PollService {
 
     @Override
     public String getAggregatedResults(UUID pollId) {
-        if (pollId == null) return "Poll not found";
-        return "todo results todo";
+        if (pollId == null) return "{\"error\":\"Poll not found\"}";
+
+        Poll poll = pollRepo.findById(pollId);
+        if (poll == null) return "{\"error\":\"Poll not found\"}";
+
+        List<VoteOption> options = poll.getOptions() == null ? List.of() : poll.getOptions();
+        options = options.stream()
+                .sorted(Comparator.comparing(VoteOption::getPresentationOrder))
+                .toList();
+
+        int totalVotes = 0;
+        for (VoteOption opt : options) {
+            if (opt.getVotes() != null) totalVotes += opt.getVotes().size();
+        }
+
+        StringBuilder sb = new StringBuilder(512);
+        sb.append('{')
+                .append("\"pollId\":\"").append(poll.getId()).append("\",")
+                .append("\"question\":\"").append(jsonEscape(poll.getQuestion())).append("\",")
+                .append("\"isPrivate\":").append(poll.getIsPrivate()).append(',')
+                .append("\"publishedAt\":\"").append(poll.getPublishedAt() != null ? poll.getPublishedAt().toString() : "").append("\",")
+                .append("\"validUntil\":\"").append(poll.getValidUntil() != null ? poll.getValidUntil().toString() : "").append("\",")
+                .append("\"totalVotes\":").append(totalVotes).append(',');
+
+        sb.append("\"options\":[");
+        boolean first = true;
+        for (VoteOption opt : options) {
+            if (!first) sb.append(',');
+            first = false;
+
+            List<Vote> votes = (opt.getVotes() == null) ? List.of() : opt.getVotes().stream().toList();
+            int count = votes.size();
+            double pct = (totalVotes == 0) ? 0.0 : (count * 100.0) / totalVotes;
+            pct = Math.round(pct * 100.0) / 100.0;
+
+            sb.append('{')
+                    .append("\"optionId\":\"").append(opt.getId()).append("\",")
+                    .append("\"caption\":\"").append(jsonEscape(opt.getCaption())).append("\",")
+                    .append("\"order\":").append(opt.getPresentationOrder()).append(',')
+                    .append("\"votes\":").append(count).append(',')
+                    .append("\"percentage\":").append(pct).append(',');
+
+            // --- voters array ---
+            sb.append("\"voters\":[");
+            boolean firstVoter = true;
+            for (Vote v : votes) {
+                if (!firstVoter) sb.append(',');
+                firstVoter = false;
+                sb.append(serializeVoter(v));
+            }
+            sb.append(']');
+
+            sb.append('}');
+        }
+        sb.append("],");
+
+        sb.append("\"computedAt\":\"").append(Instant.now().toString()).append("\"");
+        sb.append('}');
+
+        return sb.toString();
+    }
+
+    private String serializeVoter(Vote v) {
+        String userId = "";
+        String displayName = "";
+        String votedAt = "";
+
+        if (v != null) {
+            // Try user object first
+            User u = v.getVoter();
+            if (u != null) {
+                if (u.getId() != null) userId = u.getId().toString();
+                if (u.getUsername() != null) displayName = u.getUsername();
+                else if (u.getEmail() != null) displayName = u.getEmail();
+                else displayName = u.getId().toString();
+            }
+            // Fallback: direct userId on Vote (if your model has it)
+            if (userId.isEmpty() && v.getId() != null) {
+                userId = v.getId().toString();
+            }
+            // Timestamp (createdAt / votedAt depending on your model)
+            if (v.getPublishedAt() != null) votedAt = v.getPublishedAt().toString();
+        }
+
+        return '{' + "\"userId\":\"" + jsonEscape(userId) + "\","
+                        + "\"displayName\":\"" + jsonEscape(displayName) + "\","
+                        + "\"votedAt\":\"" + jsonEscape(votedAt) + "\"" +
+                '}';
+    }
+
+    private static String jsonEscape(String s) {
+        if (s == null) return "";
+        StringBuilder out = new StringBuilder(s.length() + 16);
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '\"': out.append("\\\""); break;
+                case '\\': out.append("\\\\"); break;
+                case '\b': out.append("\\b");  break;
+                case '\f': out.append("\\f");  break;
+                case '\n': out.append("\\n");  break;
+                case '\r': out.append("\\r");  break;
+                case '\t': out.append("\\t");  break;
+                default:
+                    if (c < 0x20) {
+                        out.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        out.append(c);
+                    }
+            }
+        }
+        return out.toString();
     }
 }

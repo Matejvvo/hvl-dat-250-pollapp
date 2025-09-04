@@ -95,6 +95,10 @@ public class PollAppApplication {
         System.out.println("Votes for poll 1:");
         printPollVotes(pollService, p1.getId());
 
+        // Try aggregated results
+        System.out.println("Poll 1 aggregated");
+        System.out.println("  - " + pollService.getAggregatedResults(p1.getId()));
+
         // Delete the one poll
         System.out.println("Poll 1 deleted");
         pollService.delete(p1.getId());
@@ -106,6 +110,7 @@ public class PollAppApplication {
         System.out.println(pollService.list());
         System.out.println(voteService.list());
 
+        // Done
         System.out.println("All tests done!");
     }
 }
