@@ -63,9 +63,11 @@ public class VoteOption {
     // --- Overrides ---
     @Override
     public String toString() {
-        return "VoteOption{" + "id=" + id + ", caption='" + caption + '\''
-                + ", presentationOrder=" + presentationOrder + ", pollId="
-                + (poll != null ? poll.getId() : "null") + ", votes=" + votes.size() + '}';
+        return "VoteOption{"    + "caption='" + caption + '\''
+                                + ", presentationOrder=" + presentationOrder
+                                + ", poll=" + poll.getQuestion()
+                                + ", votes=" + votes.size()
+                + '}';
     }
 
     @Override

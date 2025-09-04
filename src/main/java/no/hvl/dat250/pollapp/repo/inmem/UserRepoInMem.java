@@ -38,6 +38,11 @@ public class UserRepoInMem implements UserRepo {
     }
 
     @Override
+    public boolean empty() {
+        return store.isEmpty();
+    }
+
+    @Override
     public void deleteById(UUID id) {
         if (id == null) return;
         store.remove(id);

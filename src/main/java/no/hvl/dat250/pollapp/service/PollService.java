@@ -1,37 +1,36 @@
 package no.hvl.dat250.pollapp.service;
 
-import no.hvl.dat250.pollapp.dto.PollDTO;
-import no.hvl.dat250.pollapp.dto.UserDTO;
-import no.hvl.dat250.pollapp.dto.VoteOptionDTO;
+import no.hvl.dat250.pollapp.model.*;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
 public interface PollService {
-    PollDTO create(String q, int maxVotes, boolean priv, UUID userId, Instant publishedAt, Instant validUntil);
+    Poll create(String question, int maxVotesPerUser, boolean isPrivate,
+                UUID creatorId, Instant publishedAt, Instant validUntil);
 
-    List<PollDTO> list();
+    List<Poll> list();
 
-    PollDTO get(UUID pollId);
+    Poll get(UUID pollId);
 
-    PollDTO update(UUID pollId, String q, int maxVotes, boolean priv, Instant validUntil);
+    Poll update(UUID pollId, String question, int maxVotesPerUser, boolean isPrivate, Instant validUntil);
 
     void delete(UUID pollId);
 
-    VoteOptionDTO addVoteOption(UUID pollId, String caption);
+    VoteOption addVoteOption(UUID pollId, String caption);
 
-    List<VoteOptionDTO> listVoteOptions(UUID pollId);
+    List<VoteOption> listVoteOptions(UUID pollId);
 
-    // VoteOptionDTO updateVoteOption(UUID pollId, UUID optionId, VoteOptionDTO option);
+    // VoteOption updateVoteOption(UUID pollId, UUID optionId, VoteOption option);
 
     void removeVoteOption(UUID pollId, UUID optionId);
 
-    UserDTO addAllowedVoter(UUID pollId, UUID userId);
+    User addAllowedVoter(UUID pollId, UUID userId);
 
-    List<UserDTO> listAllowedVoters(UUID pollId);
+    List<User> listAllowedVoters(UUID pollId);
 
-    UserDTO removeAllowedVoter(UUID pollId, UUID userId);
+    User removeAllowedVoter(UUID pollId, UUID userId);
 
     String getAggregatedResults(UUID pollId);
 }

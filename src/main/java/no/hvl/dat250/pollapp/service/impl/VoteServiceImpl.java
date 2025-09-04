@@ -1,8 +1,12 @@
 package no.hvl.dat250.pollapp.service.impl;
 
-import no.hvl.dat250.pollapp.dto.*;
-import no.hvl.dat250.pollapp.model.*;
-import no.hvl.dat250.pollapp.repo.*;
+import no.hvl.dat250.pollapp.model.Poll;
+import no.hvl.dat250.pollapp.model.User;
+import no.hvl.dat250.pollapp.model.Vote;
+import no.hvl.dat250.pollapp.model.VoteOption;
+import no.hvl.dat250.pollapp.repo.PollRepo;
+import no.hvl.dat250.pollapp.repo.UserRepo;
+import no.hvl.dat250.pollapp.repo.VoteRepo;
 import no.hvl.dat250.pollapp.service.VoteService;
 
 import java.time.Instant;
@@ -21,7 +25,7 @@ public class VoteServiceImpl implements VoteService {
     }
 
     @Override
-    public VoteDTO castVote(UUID voterId, UUID pollId, UUID optionId) {
+    public Vote castVote(UUID voterId, UUID pollId, UUID optionId) {
         if (pollId == null || voterId == null || optionId == null) return null;
 
         Poll poll = pollRepo.findById(pollId);
@@ -34,15 +38,23 @@ public class VoteServiceImpl implements VoteService {
         if (poll.getIsPrivate() && !poll.getAllowedVoters().contains(voter)) return null;
 
         // Find the option within this poll
-        VoteOption selectedOption = poll.getOptions().stream().filter(opt -> optionId.equals(opt.getId())).findFirst().orElse(null);
+        VoteOption selectedOption = poll.getOptions().stream()
+                .filter(opt -> optionId.equals(opt.getId()))
+                .findFirst()
+                .orElse(null);
         if (selectedOption == null) return null;
 
         // Count this voter's votes in this poll
-        long userVoteCount = voter.getVotes().stream().filter(v -> v.getOption() != null && v.getOption().getPoll() != null && pollId.equals(v.getOption().getPoll().getId())).count();
+        long userVoteCount = voter.getVotes().stream()
+                .filter(v -> v.getOption() != null
+                        && v.getOption().getPoll() != null
+                        && pollId.equals(v.getOption().getPoll().getId()))
+                .count();
         if (userVoteCount >= poll.getMaxVotesPerUser()) return null;
 
         // Prevent multiple votes for the same option
-        boolean alreadyVotedThisOption = voter.getVotes().stream().anyMatch(v -> v.getOption() != null && optionId.equals(v.getOption().getId()));
+        boolean alreadyVotedThisOption = voter.getVotes().stream()
+                .anyMatch(v -> v.getOption() != null && optionId.equals(v.getOption().getId()));
         if (alreadyVotedThisOption) return null;
 
         Vote vote = new Vote();
@@ -55,25 +67,32 @@ public class VoteServiceImpl implements VoteService {
         if (selectedOption.getVotes() == null || voter.getVotes() == null) return null;
         selectedOption.getVotes().add(vote);
         voter.getVotes().add(vote);
-        return VoteDTO.from(vote);
+        return vote;
     }
 
     @Override
-    public List<VoteDTO> listPollVotes(UUID pollId) {
-        if (pollId == null) return null;
-        if (!pollRepo.existsById(pollId)) return null;
-        return pollRepo.findById(pollId).getOptions().stream().flatMap(opt -> opt.getVotes().stream()).map(VoteDTO::from).toList();
+    public List<Vote> list() {
+        if (voteRepo.empty()) return List.of();
+        return voteRepo.findAll().stream().toList();
     }
 
     @Override
-    public VoteDTO get(UUID voteId) {
+    public List<Vote> listPollVotes(UUID pollId) {
+        if (pollId == null) return List.of();
+        if (!pollRepo.existsById(pollId)) return List.of();
+        return pollRepo.findById(pollId).getOptions().stream()
+                .flatMap(opt -> opt.getVotes().stream()).toList();
+    }
+
+    @Override
+    public Vote get(UUID voteId) {
         if (voteId == null) return null;
         if (!voteRepo.existsById(voteId)) return null;
-        return VoteDTO.from(voteRepo.findById(voteId));
+        return voteRepo.findById(voteId);
     }
 
     @Override
-    public VoteDTO update(UUID userId, UUID voteId, UUID optionId) {
+    public Vote update(UUID userId, UUID voteId, UUID optionId) {
         if (userId == null || voteId == null || optionId == null) return null;
         if (!userRepo.existsById(userId) || !voteRepo.existsById(voteId)) return null;
 
@@ -94,14 +113,20 @@ public class VoteServiceImpl implements VoteService {
         if (now.isAfter(poll.getValidUntil()) || now.isBefore(poll.getPublishedAt())) return null;
 
         // Find the new option within the same poll
-        VoteOption newOption = poll.getOptions().stream().filter(opt -> optionId.equals(opt.getId())).findFirst().orElse(null);
+        VoteOption newOption = poll.getOptions().stream()
+                .filter(opt -> optionId.equals(opt.getId()))
+                .findFirst()
+                .orElse(null);
         if (newOption == null) return null;
 
         // If unchanged, just return current
-        if (currentOption.getId().equals(newOption.getId())) return VoteDTO.from(vote);
+        if (currentOption.getId().equals(newOption.getId())) return vote;
 
         // Prevent multiple votes for the same option by this user (excluding this vote)
-        boolean alreadyVotedThisOption = owner.getVotes().stream().anyMatch(v -> !voteId.equals(v.getId()) && v.getOption() != null && optionId.equals(v.getOption().getId()));
+        boolean alreadyVotedThisOption = owner.getVotes().stream()
+                .anyMatch(v -> !voteId.equals(v.getId())
+                        && v.getOption() != null
+                        && optionId.equals(v.getOption().getId()));
         if (alreadyVotedThisOption) return null;
 
         // Update bidirectional relationships
@@ -113,10 +138,12 @@ public class VoteServiceImpl implements VoteService {
         // Ensure owner's vote list contains this vote
         vote = voteRepo.save(vote);
         UUID vid = vote.getId();
-        if (owner.getVotes() != null && owner.getVotes().stream().noneMatch(v -> v.getId().equals(vid)))
+        boolean alreadyVoted = owner.getVotes().stream()
+                .anyMatch(v -> v.getId().equals(vid));
+        if (owner.getVotes() != null && !alreadyVoted)
             owner.getVotes().add(vote);
 
-        return VoteDTO.from(vote);
+        return vote;
     }
 
     @Override

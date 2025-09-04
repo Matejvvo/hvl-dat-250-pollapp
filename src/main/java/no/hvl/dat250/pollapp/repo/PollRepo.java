@@ -14,5 +14,7 @@ public interface PollRepo {
 
     boolean existsById(UUID id);
 
+    boolean empty();
+
     void deleteById(UUID id);
 }

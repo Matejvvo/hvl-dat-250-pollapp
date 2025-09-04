@@ -1,24 +1,22 @@
 package no.hvl.dat250.pollapp.service;
 
-import no.hvl.dat250.pollapp.dto.PollDTO;
-import no.hvl.dat250.pollapp.dto.UserDTO;
-import no.hvl.dat250.pollapp.dto.VoteDTO;
+import no.hvl.dat250.pollapp.model.*;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    UserDTO create(String username, String email);
+    User create(String username, String email);
 
-    List<UserDTO> list();
+    List<User> list();
 
-    UserDTO get(UUID userId);
+    User get(UUID userId);
 
-    UserDTO update(UUID userId, String username, String email);
+    User update(UUID userId, String username, String email);
 
     void delete(UUID userId);
 
-    List<PollDTO> listPolls(UUID userId);
+    List<Poll> listPolls(UUID userId);
 
-    List<VoteDTO> listVotes(UUID userId);
+    List<Vote> listVotes(UUID userId);
 }

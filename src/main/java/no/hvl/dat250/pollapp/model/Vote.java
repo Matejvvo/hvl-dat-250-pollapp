@@ -53,9 +53,10 @@ public class Vote {
     // --- Overrides ---
     @Override
     public String toString() {
-        return "Vote{" + "id=" + id + ", publishedAt=" + publishedAt + ", voter="
-                + (voter != null ? voter.getUsername() : "null") + ", option="
-                + (option != null ? option.getCaption() : "null") + '}';
+        return "Vote{"  + "publishedAt=" + publishedAt
+                        + ", voter=" + voter.getUsername()
+                        + ", option=" + option.getCaption()
+                + '}';
     }
 
     @Override

@@ -1,8 +1,11 @@
 package no.hvl.dat250.pollapp.service.impl;
 
-import no.hvl.dat250.pollapp.dto.*;
-import no.hvl.dat250.pollapp.model.*;
-import no.hvl.dat250.pollapp.repo.*;
+import no.hvl.dat250.pollapp.model.Poll;
+import no.hvl.dat250.pollapp.model.User;
+import no.hvl.dat250.pollapp.model.Vote;
+import no.hvl.dat250.pollapp.repo.PollRepo;
+import no.hvl.dat250.pollapp.repo.UserRepo;
+import no.hvl.dat250.pollapp.repo.VoteRepo;
 import no.hvl.dat250.pollapp.service.UserService;
 
 import java.util.HashSet;
@@ -21,7 +24,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO create(String username, String email) {
+    public User create(String username, String email) {
         if (username == null || username.isBlank()) return null;
         if (email == null || email.isBlank()) return null;
 
@@ -33,23 +36,24 @@ public class UserServiceImpl implements UserService {
         user.setVotes(new HashSet<>());
 
         user = userRepo.save(user);
-        return UserDTO.from(user);
+        return user;
     }
 
     @Override
-    public List<UserDTO> list() {
-        return userRepo.findAll().stream().map(UserDTO::from).toList();
+    public List<User> list() {
+        if (userRepo.empty()) return List.of();
+        return userRepo.findAll().stream().toList();
     }
 
     @Override
-    public UserDTO get(UUID userId) {
+    public User get(UUID userId) {
         if (userId == null) return null;
         if (!userRepo.existsById(userId)) return null;
-        return UserDTO.from(userRepo.findById(userId));
+        return userRepo.findById(userId);
     }
 
     @Override
-    public UserDTO update(UUID userId, String username, String email) {
+    public User update(UUID userId, String username, String email) {
         if (userId == null) return null;
         if (!userRepo.existsById(userId)) return null;
 
@@ -58,7 +62,7 @@ public class UserServiceImpl implements UserService {
         if (email != null && !email.isBlank()) existing.setEmail(email.trim());
 
         existing = userRepo.save(existing);
-        return UserDTO.from(existing);
+        return existing;
     }
 
     @Override
@@ -76,16 +80,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<PollDTO> listPolls(UUID userId) {
-        if (userId == null) return null;
-        if (!userRepo.existsById(userId)) return null;
-        return userRepo.findById(userId).getPolls().stream().map(PollDTO::from).toList();
+    public List<Poll> listPolls(UUID userId) {
+        if (userId == null) return List.of();
+        if (!userRepo.existsById(userId)) return List.of();
+        return userRepo.findById(userId).getPolls().stream().toList();
     }
 
     @Override
-    public List<VoteDTO> listVotes(UUID userId) {
-        if (userId == null) return null;
-        if (!userRepo.existsById(userId)) return null;
-        return userRepo.findById(userId).getVotes().stream().map(VoteDTO::from).toList();
+    public List<Vote> listVotes(UUID userId) {
+        if (userId == null) return List.of();
+        if (!userRepo.existsById(userId)) return List.of();
+        return userRepo.findById(userId).getVotes().stream().toList();
     }
 }

@@ -63,9 +63,11 @@ public class User {
     // --- Overrides ---
     @Override
     public String toString() {
-        return "User{" + "id=" + id + ", username='" + username + '\'' + ", email='"
-                + email + '\'' + '\'' + ", createdPolls="
-                + polls.size() + ", votes=" + votes.size() + '}';
+        return "User{"  + "username='" + username
+                        + ", email='" + email
+                        + ", createdPolls=" + polls.size()
+                        + ", votes=" + votes.size()
+                + '}';
     }
 
     @Override

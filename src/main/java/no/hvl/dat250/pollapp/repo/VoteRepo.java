@@ -14,5 +14,7 @@ public interface VoteRepo {
 
     boolean existsById(UUID id);
 
+    boolean empty();
+
     void deleteById(UUID id);
 }

@@ -97,11 +97,15 @@ public class Poll {
     // --- Overrides ---
     @Override
     public String toString() {
-        return "Poll{" + "id=" + id + ", question='" + question + '\''
-                + ", publishedAt=" + publishedAt + ", validUntil=" + validUntil
-                + ", visibility=" + isPrivate + ", maxVotesPerUser=" + maxVotesPerUser
-                + ", createdBy=" + (creator != null ? creator.getUsername() : "null")
-                + ", options=" + options.size() + ", allowedVoters=" + allowedVoters + '}';
+        return "Poll{"  + "question='" + question
+                        + ", publishedAt=" + publishedAt
+                        + ", validUntil=" + validUntil
+                        + ", visibility=" + isPrivate
+                        + ", maxVotesPerUser=" + maxVotesPerUser
+                        + ", createdBy=" + creator.getUsername()
+                        + ", options=" + options.size()
+                        + ", allowedVoters=" + allowedVoters.size()
+                + '}';
     }
 
     @Override
