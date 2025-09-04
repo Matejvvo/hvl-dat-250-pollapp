@@ -1,6 +1,7 @@
 package no.hvl.dat250.pollapp.dto;
 
 import no.hvl.dat250.pollapp.model.Vote;
+
 import java.time.Instant;
 import java.util.UUID;
 

@@ -1,6 +1,7 @@
 package no.hvl.dat250.pollapp.dto;
 
 import no.hvl.dat250.pollapp.model.VoteOption;
+
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
