@@ -3,6 +3,10 @@ package no.hvl.dat250.pollapp.web;
 import no.hvl.dat250.pollapp.model.*;
 import no.hvl.dat250.pollapp.service.PollService;
 
+import no.hvl.dat250.pollapp.web.req.OptionCreateRequest;
+import no.hvl.dat250.pollapp.web.req.PollCreateRequest;
+import no.hvl.dat250.pollapp.web.req.PollUpdateRequest;
+import no.hvl.dat250.pollapp.web.req.VoteCreateRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,14 +22,15 @@ public class PollController {
     }
 
     @PostMapping
-    public Poll create(@RequestBody Poll poll) {
+    public Poll create(@RequestBody PollCreateRequest req) {
         return pollService.create(
-                poll.getQuestion(),
-                poll.getMaxVotesPerUser(),
-                poll.getIsPrivate(),
-                poll.getCreator().getId(),
-                poll.getPublishedAt(),
-                poll.getValidUntil()
+                req.question(),
+                req.maxVotesPerUser(),
+                req.isPrivate(),
+                req.creatorId(),
+                req.publishedAt(),
+                req.validUntil(),
+                req.options()
         );
     }
 
@@ -40,13 +45,13 @@ public class PollController {
     }
 
     @PutMapping("/{id}")
-    public Poll update(@PathVariable UUID id, @RequestBody Poll poll) {
+    public Poll update(@PathVariable UUID id, @RequestBody PollUpdateRequest req) {
         return pollService.update(
                 id,
-                poll.getQuestion(),
-                poll.getMaxVotesPerUser(),
-                poll.getIsPrivate(),
-                poll.getValidUntil()
+                req.question(),
+                req.maxVotesPerUser(),
+                req.isPrivate(),
+                req.validUntil()
         );
     }
 
@@ -56,8 +61,8 @@ public class PollController {
     }
 
     @PostMapping("/{id}/options")
-    public VoteOption addVoteOption(@PathVariable UUID id, @RequestBody String caption) {
-        return pollService.addVoteOption(id, caption);
+    public VoteOption addVoteOption(@PathVariable UUID id, @RequestBody OptionCreateRequest req) {
+        return pollService.addVoteOption(id, req.caption());
     }
 
     @GetMapping("/{id}/options")
@@ -86,8 +91,9 @@ public class PollController {
     }
 
     @PostMapping("/{pollId}/votes")
-    public Vote castVote(@PathVariable UUID pollId, @RequestBody Vote vote) {
-        return pollService.castVote(vote.getVoter().getId(), pollId, vote.getOption().getId());
+    public Vote castVote(@PathVariable UUID pollId, @RequestBody VoteCreateRequest req) {
+        System.out.println(pollId + "\n" + req.voterId() + "\n" + req.optionId());
+        return pollService.castVote(req.voterId(), pollId, req.optionId());
     }
 
     @GetMapping("/{pollId}/votes")

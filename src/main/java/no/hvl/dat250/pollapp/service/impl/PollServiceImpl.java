@@ -22,8 +22,8 @@ public class PollServiceImpl implements PollService {
     }
 
     @Override
-    public Poll create(String question, int maxVotesPerUser, boolean isPrivate,
-                       UUID creatorId, Instant publishedAt, Instant validUntil) {
+    public Poll create(String question, int maxVotesPerUser, boolean isPrivate, UUID creatorId,
+                       Instant publishedAt, Instant validUntil, List<String> options) {
         if (question == null || question.isBlank()) return null;
         if (maxVotesPerUser <= 0 || creatorId == null) return null;
         if (publishedAt == null || validUntil == null || publishedAt.isAfter(validUntil)) return null;
@@ -41,6 +41,11 @@ public class PollServiceImpl implements PollService {
         poll.setAllowedVoters(new HashSet<>());
         poll.setCreator(creator);
         poll.setOptions(new ArrayList<>());
+
+        if (options != null && !options.isEmpty())
+            for (String o : options)
+                if (o != null && !o.isBlank())
+                    addVoteOption(poll.getId(), o);
 
         creator.getPolls().add(poll);
         poll = pollRepo.save(poll);

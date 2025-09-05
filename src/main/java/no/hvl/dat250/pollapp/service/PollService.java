@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.UUID;
 
 public interface PollService {
-    Poll create(String question, int maxVotesPerUser, boolean isPrivate,
-                UUID creatorId, Instant publishedAt, Instant validUntil);
+    Poll create(String question, int maxVotesPerUser, boolean isPrivate, UUID creatorId,
+                Instant publishedAt, Instant validUntil, List<String> options);
 
     List<Poll> list();
 

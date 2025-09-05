@@ -2,6 +2,8 @@ package no.hvl.dat250.pollapp.web;
 
 import no.hvl.dat250.pollapp.model.*;
 import no.hvl.dat250.pollapp.service.UserService;
+import no.hvl.dat250.pollapp.web.req.UserCreateRequest;
+import no.hvl.dat250.pollapp.web.req.UserUpdateRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,12 +19,13 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
-        return userService.create(user.getUsername(), user.getEmail(), "");
+    public User create(@RequestBody UserCreateRequest req) {
+        return userService.create(req.username(), req.email(), "");
     }
 
     @GetMapping
     public List<User> list() {
+        if (userService.list().isEmpty()) return List.of();
         return userService.list().stream().toList();
     }
 
@@ -32,8 +35,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public User update(@PathVariable UUID id, @RequestBody User user) {
-        return userService.update(id, user.getUsername(), user.getEmail());
+    public User update(@PathVariable UUID id, @RequestBody UserUpdateRequest req) {
+        return userService.update(id, req.username(), req.email());
     }
 
     @DeleteMapping("/{id}")
@@ -43,11 +46,13 @@ public class UserController {
 
     @GetMapping("/{id}/polls")
     public List<Poll> getPolls(@PathVariable UUID id) {
+        if (userService.listPolls(id).isEmpty()) return List.of();
         return userService.listPolls(id);
     }
 
     @GetMapping("/{id}/votes")
     public List<Vote> getVotes(@PathVariable UUID id) {
+        if (userService.listVotes(id).isEmpty()) return List.of();
         return userService.listVotes(id);
     }
 }

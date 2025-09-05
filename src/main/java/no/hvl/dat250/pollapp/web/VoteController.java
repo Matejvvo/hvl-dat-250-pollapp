@@ -2,6 +2,7 @@ package no.hvl.dat250.pollapp.web;
 
 import no.hvl.dat250.pollapp.model.Vote;
 import no.hvl.dat250.pollapp.service.VoteService;
+import no.hvl.dat250.pollapp.web.req.VoteUpdateRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,8 +28,8 @@ public class VoteController {
     }
 
     @PutMapping("/{id}")
-    public Vote update(@PathVariable UUID id, @RequestBody Vote vote) {
-        return voteService.update(id, vote.getVoter().getId(), vote.getOption().getId());
+    public Vote update(@PathVariable UUID id, @RequestBody VoteUpdateRequest req) {
+        return voteService.update(id, req.voterId(), req.optionId());
     }
 
     @DeleteMapping("/{id}")
