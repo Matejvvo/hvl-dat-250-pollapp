@@ -10,7 +10,7 @@ description = "Simple Poll & Voting App"
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(24)
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
 
@@ -20,14 +20,17 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    implementation("org.apache.commons:commons-lang3:3.18.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+	developmentOnly("org.springframework.boot:spring-boot-devtools")
+
     runtimeOnly("com.h2database:h2")
+
+    implementation("org.apache.commons:commons-lang3:3.18.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.6.0")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<Test> {

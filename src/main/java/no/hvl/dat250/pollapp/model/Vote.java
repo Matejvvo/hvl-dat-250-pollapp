@@ -1,5 +1,8 @@
 package no.hvl.dat250.pollapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
@@ -10,7 +13,9 @@ public class Vote {
     private Instant publishedAt;
 
     // --- Associations ---
+    @JsonBackReference(value = "vote-user")
     private User voter;
+    @JsonBackReference(value = "option-vote")
     private VoteOption option;
 
     // --- Public Bean Constructor ---
@@ -54,8 +59,8 @@ public class Vote {
     @Override
     public String toString() {
         return "Vote{"  + "publishedAt=" + publishedAt
-                        + ", voter=" + voter.getUsername()
-                        + ", option=" + option.getCaption()
+                        + ", voter=" + (voter != null ? voter.getUsername() : "null")
+                        + ", option=" + (option != null ? option.getCaption() : "null")
                 + '}';
     }
 

@@ -220,7 +220,8 @@ public class PollServiceImpl implements PollService {
         vote.setOption(selectedOption);
 
         vote = voteRepo.save(vote);
-        if (selectedOption.getVotes() == null || voter.getVotes() == null) return null;
+        if (selectedOption.getVotes() == null) selectedOption.setVotes(new HashSet<>());
+        if(voter.getVotes() == null) voter.setVotes(new HashSet<>());
         selectedOption.getVotes().add(vote);
         voter.getVotes().add(vote);
         return vote;
@@ -235,6 +236,7 @@ public class PollServiceImpl implements PollService {
     }
 
     @Override
+    // todo
     public String getAggregatedResults(UUID pollId) {
         if (pollId == null) return "{\"error\":\"Poll not found\"}";
 

@@ -1,5 +1,8 @@
 package no.hvl.dat250.pollapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.time.Instant;
 import java.util.*;
 
@@ -11,10 +14,12 @@ public class Poll {
     private Instant validUntil;
     private int maxVotesPerUser;
     private boolean isPrivate;
-    private Set<User> allowedVoters;
+    private Set<User> allowedVoters = new HashSet<>();
 
     // --- Associations ---
+    @JsonBackReference(value = "poll-user")
     private User creator;
+    @JsonManagedReference(value = "poll-option")
     private List<VoteOption> options = new ArrayList<>();
 
     // --- Public Bean Constructor ---
@@ -102,9 +107,9 @@ public class Poll {
                         + ", validUntil=" + validUntil
                         + ", visibility=" + isPrivate
                         + ", maxVotesPerUser=" + maxVotesPerUser
-                        + ", createdBy=" + creator.getUsername()
-                        + ", options=" + options.size()
-                        + ", allowedVoters=" + allowedVoters.size()
+                        + ", createdBy=" + (creator != null ? creator.getUsername() : "null")
+                        + ", options=" + (options != null ? options.size() : 0)
+                        + ", allowedVoters=" + (allowedVoters != null ? allowedVoters.size() : 0)
                 + '}';
     }
 

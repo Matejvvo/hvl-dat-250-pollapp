@@ -1,5 +1,8 @@
 package no.hvl.dat250.pollapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -12,7 +15,9 @@ public class User {
     private String email;
 
     // Associations
+    @JsonManagedReference(value = "poll-user")
     private Set<Poll> polls = new HashSet<>();
+    @JsonManagedReference(value = "vote-user")
     private Set<Vote> votes = new HashSet<>();
 
     // --- Public Bean Constructor ---

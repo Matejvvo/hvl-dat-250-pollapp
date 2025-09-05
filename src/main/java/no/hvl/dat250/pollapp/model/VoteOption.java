@@ -1,5 +1,8 @@
 package no.hvl.dat250.pollapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -12,7 +15,9 @@ public class VoteOption {
     private int presentationOrder;
 
     // --- Associations ---
+    @JsonBackReference(value = "poll-option")
     private Poll poll;
+    @JsonManagedReference(value = "option-vote")
     private Set<Vote> votes = new HashSet<>();
 
     // --- Public Bean Constructor ---
@@ -65,8 +70,8 @@ public class VoteOption {
     public String toString() {
         return "VoteOption{"    + "caption='" + caption + '\''
                                 + ", presentationOrder=" + presentationOrder
-                                + ", poll=" + poll.getQuestion()
-                                + ", votes=" + votes.size()
+                                + ", poll=" + (poll != null ? poll.getQuestion() : "null")
+                                + ", votes=" + (votes != null ? votes.size() : 0)
                 + '}';
     }
 
