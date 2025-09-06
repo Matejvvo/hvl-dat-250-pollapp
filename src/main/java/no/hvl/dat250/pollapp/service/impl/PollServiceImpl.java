@@ -6,6 +6,7 @@ import no.hvl.dat250.pollapp.service.PollService;
 
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 
@@ -14,11 +15,13 @@ public class PollServiceImpl implements PollService {
     private final UserRepo userRepo;
     private final PollRepo pollRepo;
     private final VoteRepo voteRepo;
+    private final Clock clock;
 
-    public PollServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo) {
+    public PollServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo, Clock clock) {
         this.userRepo = userRepo;
         this.pollRepo = pollRepo;
         this.voteRepo = voteRepo;
+        this.clock = clock;
     }
 
     @Override
@@ -91,10 +94,9 @@ public class PollServiceImpl implements PollService {
         if (poll.getCreator() != null && poll.getCreator().getPolls() != null)
             poll.getCreator().getPolls().remove(poll);
 
-        if (poll.getOptions() != null) for (VoteOption option : poll.getOptions()) {
-            for (Vote vote : option.getVotes()) {
-                vote.getVoter().getVotes().remove(vote);
-                voteRepo.deleteById(vote.getId());
+        if (poll.getOptions() != null) {
+            for (VoteOption option : poll.getOptions()) {
+                deleteVote(option);
             }
         }
 
@@ -146,8 +148,7 @@ public class PollServiceImpl implements PollService {
                 .orElse(null);
         if (option == null) return;
 
-        if (option.getVotes() != null) for (Vote vote : option.getVotes())
-            voteRepo.deleteById(vote.getId());
+        deleteVote(option);
 
         poll.getOptions().remove(option);
     }
@@ -191,7 +192,7 @@ public class PollServiceImpl implements PollService {
 
         Poll poll = pollRepo.findById(pollId);
         User voter = userRepo.findById(voterId);
-        Instant now = Instant.now();
+        Instant now = Instant.now(clock);
         if (poll == null || voter == null) return null;
         if (now.isAfter(poll.getValidUntil()) || now.isBefore(poll.getPublishedAt())) return null;
 
@@ -220,7 +221,7 @@ public class PollServiceImpl implements PollService {
 
         Vote vote = new Vote();
         vote.setId(UUID.randomUUID());
-        vote.setPublishedAt(Instant.now());
+        vote.setPublishedAt(Instant.now(clock));
         vote.setVoter(voter);
         vote.setOption(selectedOption);
 
@@ -299,7 +300,7 @@ public class PollServiceImpl implements PollService {
         }
         sb.append("],");
 
-        sb.append("\"computedAt\":\"").append(Instant.now().toString()).append("\"");
+        sb.append("\"computedAt\":\"").append(Instant.now(clock).toString()).append("\"");
         sb.append('}');
 
         return sb.toString();
@@ -355,5 +356,16 @@ public class PollServiceImpl implements PollService {
             }
         }
         return out.toString();
+    }
+
+    private void deleteVote(VoteOption option) {
+        if (option.getVotes() != null) {
+            for (Vote vote : option.getVotes()) {
+                if (vote.getVoter() != null && vote.getVoter().getVotes() != null) {
+                    vote.getVoter().getVotes().remove(vote);
+                }
+                voteRepo.deleteById(vote.getId());
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ import no.hvl.dat250.pollapp.service.UserService;
 
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -15,11 +16,13 @@ public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
     private final PollRepo pollRepo;
     private final VoteRepo voteRepo;
+    private final Clock clock;
 
-    public UserServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo) {
+    public UserServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo, Clock clock) {
         this.userRepo = userRepo;
         this.pollRepo = pollRepo;
         this.voteRepo = voteRepo;
+        this.clock = clock;
     }
 
     @Override
@@ -72,8 +75,12 @@ public class UserServiceImpl implements UserService {
         User user = userRepo.findById(userId);
         if (user == null) return;
 
-        user.getPolls().forEach(p -> pollRepo.deleteById(p.getId()));
         user.getVotes().forEach(v -> voteRepo.deleteById(v.getId()));
+        user.getPolls().forEach(p -> p.getOptions().forEach(o -> o.getVotes().forEach(v -> {
+            v.getVoter().getVotes().remove(v);
+            voteRepo.deleteById(v.getId());
+        })));
+        user.getPolls().forEach(p -> pollRepo.deleteById(p.getId()));
 
         userRepo.deleteById(userId);
     }

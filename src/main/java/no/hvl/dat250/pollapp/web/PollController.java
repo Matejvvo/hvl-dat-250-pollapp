@@ -92,7 +92,6 @@ public class PollController {
 
     @PostMapping("/{pollId}/votes")
     public Vote castVote(@PathVariable UUID pollId, @RequestBody VoteCreateRequest req) {
-        System.out.println(pollId + "\n" + req.voterId() + "\n" + req.optionId());
         return pollService.castVote(req.voterId(), pollId, req.optionId());
     }
 

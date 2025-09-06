@@ -6,6 +6,7 @@ import no.hvl.dat250.pollapp.service.VoteService;
 
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -15,11 +16,13 @@ public class VoteServiceImpl implements VoteService {
     private final UserRepo userRepo;
     private final PollRepo pollRepo;
     private final VoteRepo voteRepo;
+    private final Clock clock;
 
-    public VoteServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo) {
+    public VoteServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo,  Clock clock) {
         this.userRepo = userRepo;
         this.pollRepo = pollRepo;
         this.voteRepo = voteRepo;
+        this.clock = clock;
     }
 
     @Override
@@ -53,7 +56,7 @@ public class VoteServiceImpl implements VoteService {
         Poll poll = currentOption.getPoll();
 
         // Respect poll time window
-        Instant now = Instant.now();
+        Instant now = Instant.now(clock);
         if (now.isAfter(poll.getValidUntil()) || now.isBefore(poll.getPublishedAt())) return null;
 
         // Find the new option within the same poll
