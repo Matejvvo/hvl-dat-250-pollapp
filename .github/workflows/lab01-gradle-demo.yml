@@ -3,6 +3,8 @@ name: Lab 01 Gradle Demo
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - "src/main/java/no/hvl/dat250/pollapp/HelloWorld.java"
 
 defaults:
   run:
