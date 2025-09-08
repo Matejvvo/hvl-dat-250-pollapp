@@ -1,9 +1,10 @@
 package no.hvl.dat250.pollapp.aitests;
 
-import no.hvl.dat250.pollapp.testconfig.TestClockConfig;
-import no.hvl.dat250.pollapp.model.*;
+import no.hvl.dat250.pollapp.config.TestClockConfig;
+import no.hvl.dat250.pollapp.domain.*;
 import no.hvl.dat250.pollapp.service.PollService;
 import no.hvl.dat250.pollapp.service.UserService;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

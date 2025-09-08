@@ -1,7 +1,7 @@
-package no.hvl.dat250.pollapp.repo.inmem;
+package no.hvl.dat250.pollapp.repository.inmem;
 
-import no.hvl.dat250.pollapp.model.User;
-import no.hvl.dat250.pollapp.repo.UserRepo;
+import no.hvl.dat250.pollapp.domain.Vote;
+import no.hvl.dat250.pollapp.repository.VoteRepo;
 
 import org.springframework.stereotype.Component;
 
@@ -12,24 +12,24 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 @Component
-public class UserRepoInMem implements UserRepo {
-    private final Map<UUID, User> store = new HashMap<>();
+public class VoteRepoInMem implements VoteRepo {
+    private final Map<UUID, Vote> store = new HashMap<>();
 
     @Override
-    public User save(User user) {
-        if (user.getId() == null) user.setId(UUID.randomUUID());
-        store.put(user.getId(), user);
-        return user;
+    public Vote save(Vote vote) {
+        if (vote.getId() == null) vote.setId(UUID.randomUUID());
+        store.put(vote.getId(), vote);
+        return vote;
     }
 
     @Override
-    public User findById(UUID id) {
+    public Vote findById(UUID id) {
         if (id == null) return null;
         return store.get(id);
     }
 
     @Override
-    public List<User> findAll() {
+    public List<Vote> findAll() {
         if (store.isEmpty()) return null;
         return new ArrayList<>(store.values());
     }

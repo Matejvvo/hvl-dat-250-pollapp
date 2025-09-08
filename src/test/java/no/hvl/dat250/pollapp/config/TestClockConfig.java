@@ -1,4 +1,4 @@
-package no.hvl.dat250.pollapp.testconfig;
+package no.hvl.dat250.pollapp.config;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;

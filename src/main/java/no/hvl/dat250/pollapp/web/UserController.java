@@ -1,9 +1,9 @@
 package no.hvl.dat250.pollapp.web;
 
-import no.hvl.dat250.pollapp.model.*;
+import no.hvl.dat250.pollapp.domain.*;
 import no.hvl.dat250.pollapp.service.UserService;
-import no.hvl.dat250.pollapp.web.req.UserCreateRequest;
-import no.hvl.dat250.pollapp.web.req.UserUpdateRequest;
+import no.hvl.dat250.pollapp.web.dto.UserCreateRequest;
+import no.hvl.dat250.pollapp.web.dto.UserUpdateRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

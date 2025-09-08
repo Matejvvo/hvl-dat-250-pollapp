@@ -1,6 +1,6 @@
 package no.hvl.dat250.pollapp;
 
-import no.hvl.dat250.pollapp.model.*;
+import no.hvl.dat250.pollapp.domain.*;
 import no.hvl.dat250.pollapp.service.*;
 
 import org.junit.jupiter.api.Test;

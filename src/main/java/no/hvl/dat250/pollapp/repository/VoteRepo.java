@@ -1,6 +1,6 @@
-package no.hvl.dat250.pollapp.repo;
+package no.hvl.dat250.pollapp.repository;
 
-import no.hvl.dat250.pollapp.model.Vote;
+import no.hvl.dat250.pollapp.domain.Vote;
 
 import java.util.List;
 import java.util.UUID;

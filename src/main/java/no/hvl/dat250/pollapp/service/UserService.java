@@ -1,6 +1,6 @@
 package no.hvl.dat250.pollapp.service;
 
-import no.hvl.dat250.pollapp.model.*;
+import no.hvl.dat250.pollapp.domain.*;
 
 import java.util.List;
 import java.util.UUID;

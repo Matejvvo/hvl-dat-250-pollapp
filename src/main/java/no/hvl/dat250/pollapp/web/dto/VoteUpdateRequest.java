@@ -1,4 +1,4 @@
-package no.hvl.dat250.pollapp.web.req;
+package no.hvl.dat250.pollapp.web.dto;
 
 import jakarta.validation.constraints.*;
 import java.util.UUID;

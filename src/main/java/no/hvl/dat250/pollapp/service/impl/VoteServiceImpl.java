@@ -1,7 +1,7 @@
 package no.hvl.dat250.pollapp.service.impl;
 
-import no.hvl.dat250.pollapp.model.*;
-import no.hvl.dat250.pollapp.repo.*;
+import no.hvl.dat250.pollapp.domain.*;
+import no.hvl.dat250.pollapp.repository.*;
 import no.hvl.dat250.pollapp.service.VoteService;
 
 import org.springframework.stereotype.Service;

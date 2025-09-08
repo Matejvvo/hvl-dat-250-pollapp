@@ -1,12 +1,12 @@
 package no.hvl.dat250.pollapp.web;
 
-import no.hvl.dat250.pollapp.model.*;
+import no.hvl.dat250.pollapp.domain.*;
 import no.hvl.dat250.pollapp.service.PollService;
 
-import no.hvl.dat250.pollapp.web.req.OptionCreateRequest;
-import no.hvl.dat250.pollapp.web.req.PollCreateRequest;
-import no.hvl.dat250.pollapp.web.req.PollUpdateRequest;
-import no.hvl.dat250.pollapp.web.req.VoteCreateRequest;
+import no.hvl.dat250.pollapp.web.dto.OptionCreateRequest;
+import no.hvl.dat250.pollapp.web.dto.PollCreateRequest;
+import no.hvl.dat250.pollapp.web.dto.PollUpdateRequest;
+import no.hvl.dat250.pollapp.web.dto.VoteCreateRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

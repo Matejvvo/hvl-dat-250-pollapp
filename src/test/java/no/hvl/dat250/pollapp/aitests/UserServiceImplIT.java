@@ -1,10 +1,11 @@
 package no.hvl.dat250.pollapp.aitests;
 
-import no.hvl.dat250.pollapp.model.Poll;
-import no.hvl.dat250.pollapp.model.User;
-import no.hvl.dat250.pollapp.model.VoteOption;
+import no.hvl.dat250.pollapp.domain.Poll;
+import no.hvl.dat250.pollapp.domain.User;
+import no.hvl.dat250.pollapp.domain.VoteOption;
 import no.hvl.dat250.pollapp.service.PollService;
 import no.hvl.dat250.pollapp.service.UserService;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

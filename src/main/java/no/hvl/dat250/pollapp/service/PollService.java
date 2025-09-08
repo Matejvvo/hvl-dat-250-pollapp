@@ -1,6 +1,6 @@
 package no.hvl.dat250.pollapp.service;
 
-import no.hvl.dat250.pollapp.model.*;
+import no.hvl.dat250.pollapp.domain.*;
 
 import java.time.Instant;
 import java.util.List;

@@ -1,7 +1,6 @@
-package no.hvl.dat250.pollapp.model;
+package no.hvl.dat250.pollapp.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.time.Instant;
 import java.util.Objects;
