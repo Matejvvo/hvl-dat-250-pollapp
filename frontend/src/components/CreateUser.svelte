@@ -11,15 +11,15 @@
     $: isFormValid = isUsernameValid && isEmailValid && isPasswordValid;
 
     function createUser() {
-        if (!isFormValid) return null;
+        if (!isFormValid) return;
 
         const payload = {
             username: username,
             email: email,
+            password: "not-used",
         }
 
-        console.log(payload);
-        onCreateUserCallback?.(payload);
+        if(!onCreateUserCallback?.(payload)) return;
 
         username = "";
         email = "";

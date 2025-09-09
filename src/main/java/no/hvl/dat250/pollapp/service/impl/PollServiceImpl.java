@@ -45,6 +45,8 @@ public class PollServiceImpl implements PollService {
         poll.setCreator(creator);
         poll.setOptions(new ArrayList<>());
 
+        poll = pollRepo.save(poll);
+
         if (options != null && !options.isEmpty())
             for (String o : options)
                 if (o != null && !o.isBlank())

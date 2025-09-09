@@ -52,7 +52,7 @@ Content-Type: {{contentType}}
   "creatorId": "{{aliceId}}",
   "publishedAt": "{{publishedAt}}",
   "validUntil": "{{validUntil}}",
-  "options": []
+  "options": ["Test"]
 }
 > {% client.global.set("pollId", response.body.id); %}
 

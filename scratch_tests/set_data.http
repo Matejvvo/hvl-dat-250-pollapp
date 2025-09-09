@@ -1,0 +1,95 @@
+### Base config
+@baseUrl = http://localhost:8080
+@contentType = application/json
+@publishedAt = 2025-01-01T12:00:00Z
+@validUntil  = 2030-01-01T00:00:00Z
+
+################################################################################
+# 1) Create Alice
+################################################################################
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+  "username": "alice",
+  "email": "alice@example.com"
+}
+> {% client.global.set("aliceId", response.body.id); %}
+
+<> 2025-09-06T224100.200.json
+
+################################################################################
+# 2) Create Bob
+################################################################################
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+  "username": "bob",
+  "email": "bob@example.com"
+}
+> {% client.global.set("bobId", response.body.id); %}
+
+<> 2025-09-06T224100-1.200.json
+
+################################################################################
+# 3) Alice creates a poll
+################################################################################
+POST {{baseUrl}}/api/polls
+Content-Type: {{contentType}}
+
+{
+  "question": "What is your favorite color?",
+  "maxVotesPerUser": 1,
+  "isPrivate": false,
+  "creatorId": "{{aliceId}}",
+  "publishedAt": "{{publishedAt}}",
+  "validUntil": "{{validUntil}}",
+  "options": ["Test"]
+}
+> {% client.global.set("pollId", response.body.id); %}
+
+<> 2025-09-06T224100-3.200.json
+
+################################################################################
+# 4) Add poll options: Blue, Green, Red
+################################################################################
+POST {{baseUrl}}/api/polls/{{pollId}}/options
+Content-Type: {{contentType}}
+
+{ "caption": "Blue" }
+> {% client.global.set("blueId", response.body.id); %}
+
+<> 2025-09-06T224100-4.200.json
+
+###
+POST {{baseUrl}}/api/polls/{{pollId}}/options
+Content-Type: {{contentType}}
+
+{ "caption": "Green" }
+> {% client.global.set("greenId", response.body.id); %}
+
+<> 2025-09-06T224101.200.json
+
+###
+POST {{baseUrl}}/api/polls/{{pollId}}/options
+Content-Type: {{contentType}}
+
+{ "caption": "Red" }
+> {% client.global.set("redId", response.body.id); %}
+
+<> 2025-09-06T224101-1.200.json
+
+################################################################################
+# 5) Bob casts a vote for Blue
+################################################################################
+POST {{baseUrl}}/api/polls/{{pollId}}/votes
+Content-Type: {{contentType}}
+
+{
+  "voterId": "{{bobId}}",
+  "optionId": "{{blueId}}"
+}
+> {% client.global.set("voteId", response.body.id); %}
+
+<> 2025-09-06T224101-3.200.json

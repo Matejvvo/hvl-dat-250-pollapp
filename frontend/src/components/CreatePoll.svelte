@@ -15,20 +15,19 @@
     $: isFormValid = isQuestionValid && isDateValid && hasEnoughOptions && hasUser;
 
     function createPoll() {
-        if (!isFormValid) return null;
+        if (!isFormValid) return;
 
         const payload = {
             question: question.trim(),
             maxVotesPerUser: 1,
             isPrivate: false,
             creatorId: user.id,
-            publishedAt: today,
-            validUntil: validUntil,
+            publishedAt: (new Date(today + "T00:00:00Z")).toISOString(),
+            validUntil: (new Date(validUntil + "T00:00:00Z")).toISOString(),
             options: options,
         }
 
-        console.log(payload);
-        onCreatePollCallback?.(payload);
+        if(!onCreatePollCallback?.(payload, user)) return;
 
         question = "";
         validUntil = "";
@@ -53,10 +52,11 @@
     }
 
     /**
-     * @param {number} index
+     * @param {number} i
      */
-    function delOption(index) {
-        options = options.filter((_, i) => i !== index);
+    function delOption(i) {
+        console.log(i)
+        options = options.filter((_, i) => i !== i);
     }
 
 </script>
@@ -93,7 +93,9 @@
                         {#each options as option, i}
                             <li>
                                 <span>{option}</span>
-                                <button class="btn btn-ghost btn-sm" on:click|preventDefault={() => delOption(i)}>✖</button>
+                                <button class="btn btn-ghost btn-sm" on:click|preventDefault={() => delOption(i)}>
+                                    ✖
+                                </button>
                             </li>
                         {/each}
                     </ul>
@@ -103,7 +105,9 @@
                     <input bind:value={voteOption} type="text" placeholder="Enter vote option" on:keydown={(e) => {
                         if (e.key === 'Enter') addOption(e);
                     }}/>
-                    <button class="btn btn-ghost" on:click|preventDefault={addOption} disabled={!voteOption.trim()}>Add</button>
+                    <button class="btn btn-ghost" on:click|preventDefault={addOption} disabled={!voteOption.trim()}>
+                        Add
+                    </button>
                 </div>
             </div>
         </div>

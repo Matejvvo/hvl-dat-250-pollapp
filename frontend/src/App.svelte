@@ -1,60 +1,226 @@
 <script>
+    import {onMount} from "svelte";
+
     import CreatePoll from "./components/CreatePoll.svelte";
     import CreateUser from "./components/CreateUser.svelte";
     import CastVote from "./components/CastVote.svelte";
     import UserItem from "./components/UserItem.svelte";
 
-    let users = [
-        {id: 1, username: "alice", email: "alice@example.com"},
-        {id: 2, username: "bob", email: "bob@example.com"},
-        {id: 3, username: "charlie", email: "charlie@example.com"},
-        {id: 4, username: "charlie", email: "charlie@example.com"},
-        {id: 5, username: "charlie", email: "charlie@example.com"},
-        {id: 6, username: "charlie", email: "charlie@example.com"},
-        {id: 7, username: "charlie", email: "charlie@example.com"},
-    ];
-    let testVoteOptions = [
-        {id: 1, caption: "yes", presentationOrder: 0, poll: null, votes: [1, 2, 3, 4, 5]},
-        {id: 2, caption: "no", presentationOrder: 1, poll: null, votes: [1, 2, 3]},
-        {id: 3, caption: "maybe", presentationOrder: 2, poll: null, votes: []},
-        {id: 4, caption: "1", presentationOrder: 3, poll: null, votes: []},
-        {id: 5, caption: "2", presentationOrder: 4, poll: null, votes: [1]},
-        {id: 6, caption: "3", presentationOrder: 5, poll: null, votes: []},
-    ]
-    let polls = [
-        {id: 1, question: "Pineapple on pizza?", publishedAt: Date.now(), validUntil: Date.UTC(2026, 1, 1),
-            maxVotesPerUser: 1, isPrivate: false, allowedVoters: [], creator: users[1], options: testVoteOptions},
-        {id: 2, question: "Pineapple on pizza?", publishedAt: Date.now(), validUntil: Date.UTC(2026, 1, 1),
-            maxVotesPerUser: 1, isPrivate: false, allowedVoters: [], creator: users[1], options: testVoteOptions},
-        {id: 3, question: "Pineapple on pizza?", publishedAt: Date.now(), validUntil: Date.UTC(2026, 1, 1),
-            maxVotesPerUser: 1, isPrivate: false, allowedVoters: [], creator: users[1], options: testVoteOptions},
-    ];
+    const API_BASE = "http://localhost:8080/api";
+
+    let users = [];
+    let polls = [];
     let selectedUser = null;
 
-    // /**
-    //  * @param {user} user
-    //  */
-    function handleCreateUserCallback(user) {
-        user.id = Math.floor(Math.random() * 100);
-        users = [...users, user];
+    async function fetchUsers() {
+        const request = {
+            method: "GET",
+            headers: {Accept: "application/json; charset=UTF-8"},
+        }
+
+        const url = `${API_BASE}/users`;
+
+        try {
+            const response = await fetch(url, request);
+            if (!response.ok) return false;
+
+            const data = await response.json();
+            if (data == null || data.length === 0) return false;
+            for (let user of data)
+                users = [...users, user];
+
+            return true
+        } catch (error) {
+            console.error(error);
+        }
+
+        return false;
     }
 
-    // /**
-    //  * @param {poll} poll
-    //  */
-    function handleCreatePollCallback(poll) {
-        polls = [...polls, poll];
+    async function fetchPolls() {
+        const request = {
+            method: "GET",
+            headers: {Accept: "application/json; charset=UTF-8"},
+        }
+
+        const url = `${API_BASE}/polls`;
+
+        try {
+            const response = await fetch(url, request);
+            if (!response.ok) return false;
+
+            const data = await response.json();
+            if (data == null || data.length === 0) return false;
+            for (let poll of data)
+                polls = [...polls, poll];
+
+            return true;
+        } catch (error) {
+            console.error(error);
+        }
+
+        return false;
     }
 
-    // /**
-    //  * @param {user} user
-    //  */
+    async function handleCreateUserCallback(user) {
+        const request = {
+            method: "POST",
+            headers: {"Content-Type": "application/json; charset=UTF-8"},
+            body: JSON.stringify(user),
+        }
+
+        const url = `${API_BASE}/users`;
+
+        try {
+            const response = await fetch(url, request);
+            if (!response.ok) return false;
+
+            const data = await response.json();
+            if (data == null) return false;
+            users = [...users, data];
+
+            return true;
+        } catch (error) {
+            console.error(error);
+        }
+
+        return false;
+    }
+
+    async function handleCreatePollCallback(poll, user) {
+        console.log(poll);
+
+        const request = {
+            method: "POST",
+            headers: {"Content-Type": "application/json; charset=UTF-8"},
+            body: JSON.stringify(poll),
+        }
+
+        const url = `${API_BASE}/polls`;
+
+        try {
+            const response = await fetch(url, request);
+            if (!response.ok) return false;
+
+            const data = await response.json();
+            if (data == null) return false;
+            polls = [...polls, data];
+            users.find(u => u.id === user.id).polls = [...users.find(u => u.id === user.id).polls, data];
+
+            return true;
+        } catch (error) {
+            console.error(error);
+        }
+
+        return false;
+    }
+
     function handleUserSelectChangeCallback(user) {
-        if (selectedUser != null && user === selectedUser)
-            selectedUser = null;
-        else
-            selectedUser = user;
+        if (selectedUser != null && user === selectedUser) selectedUser = null;
+        else selectedUser = user;
     }
+
+
+    async function handleDeletePollCallback(poll) {
+        const request = {
+            method: "DELETE",
+        }
+
+        const url = `${API_BASE}/polls/${poll.id}`;
+
+        try {
+            const response = await fetch(url, request);
+            if (!response.ok) return false;
+
+            polls = polls.filter(p => p.id !== poll.id);
+
+            return true;
+        } catch (error) {
+            console.error(error);
+        }
+
+        return false;
+    }
+
+    async function handleCastVoteCallback(poll, user, option) {
+        const body = {
+            voterId: user.id,
+            optionId: option.id,
+        }
+
+        const request = {
+            method: "POST",
+            headers: {"Content-Type": "application/json; charset=UTF-8"},
+            body: JSON.stringify(body),
+        }
+
+        const url = `${API_BASE}/polls/${poll.id}/votes`;
+
+        try {
+            const response = await fetch(url, request);
+            if (!response.ok) return false;
+
+            const text = await response.text();
+            const data = text ? JSON.parse(text) : null;
+            if (data == null) return false;
+
+            const updateById = (arr, id, updater) => arr.map(item => (item.id === id ? updater(item) : item));
+            users = updateById(users, user.id, u => ({
+                ...u, votes: [...(u.votes ?? []), data],
+            }));
+            polls = updateById(polls, poll.id, p => ({
+                ...p, options: updateById(p.options ?? [], option.id, o => ({
+                    ...o, votes: [...(o.votes ?? []), data],
+                })),
+            }));
+            selectedUser = users.find(u => u.id === user.id);
+
+            return true;
+
+        } catch (error) {
+            console.error(error);
+        }
+
+        return false;
+    }
+
+    async function handleRemoveVoteCallback(poll, user, vote, option) {
+        const request = {
+            method: "DELETE",
+        }
+
+        const url = `${API_BASE}/votes/${vote.id}`;
+
+        try {
+            const response = await fetch(url, request);
+            if (!response.ok) return false;
+
+            const updateById = (arr, id, updater) => arr.map(item => (item.id === id ? updater(item) : item));
+            users = updateById(users, user.id, u => ({
+                ...u, votes: (u.votes ?? []).filter(v => v.id !== vote.id)
+            }));
+            polls = updateById(polls, poll.id, p => ({
+                ...p, options: updateById(p.options ?? [], option.id, o => ({
+                    ...o, votes: (o.votes ?? []).filter(v => v.id !== vote.id)
+                })),
+            }));
+            selectedUser = users.find(u => u.id === user.id);
+
+            return true;
+
+        } catch (error) {
+            console.error(error);
+        }
+
+        return false;
+    }
+
+    onMount(() => {
+        users = [];
+        polls = [];
+        fetchUsers();
+        fetchPolls();
+    });
 </script>
 
 <main>
@@ -73,16 +239,25 @@
         <h2>Selected User: {selectedUser?.username ?? "none"}</h2>
         <div class="users-grid">
             {#each users as user}
-                <UserItem user={user} selectedUser={selectedUser} onUserSelectChangeCallback={handleUserSelectChangeCallback}></UserItem>
+                <UserItem user={user}
+                          selectedUser={selectedUser}
+                          onUserSelectChangeCallback={handleUserSelectChangeCallback}>
+
+                </UserItem>
             {/each}
         </div>
     {/if}
 
-    {#if selectedUser && polls.length !== 0}
-        <h2>Voting as: {selectedUser.username}</h2>
+    {#if polls.length !== 0}
+        <h2>Voting as: {selectedUser?.username ?? "none"}</h2>
         <div class="polls-grid">
             {#each polls as poll}
-                <CastVote user={selectedUser} poll={poll}></CastVote>
+                <CastVote user={selectedUser} poll={poll}
+                          onCastVoteCallback={handleCastVoteCallback}
+                          onDeletePollCallback={handleDeletePollCallback}
+                          onRemoveVoteCallback={handleRemoveVoteCallback}>
+
+                </CastVote>
             {/each}
         </div>
     {/if}
