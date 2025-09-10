@@ -1,79 +1,96 @@
-<script>
-    import {onMount} from "svelte";
-
+<script lang="js">
+    export let p;
     export let user;
-    export let poll;
-    export let onDeletePollCallback;
-    export let onCastVoteCallback;
-    export let onRemoveVoteCallback;
 
-    $: firstUserVote = (user?.votes ?? [])[0] ?? null;
-    $: firstUserVoteId = firstUserVote?.id ?? null;
+    import {voteOnPoll} from "../lib/store.js";
 
-    $: selectedOptionId = firstUserVoteId != null
-        ? poll?.options?.find((o) => (o.votes ?? []).some((v) => v.id === firstUserVoteId))?.id ?? null
-        : null;
+    let isBusy = false;
+    let error = null;
 
-    $: caDelete = !!(user && user.polls?.some((p) => p.id === poll?.id));
+    async function vote(e, optionId) {
+        e.preventDefault();
+        error = null;
+        
+        if (!user) {
+            error = "Select a user first.";
+            return;
+        }
+        
+        isBusy = true;
+        try {
+            await voteOnPoll({
+                voterId: user.id,
+                optionId: optionId,
+                pollId: p.id,
+            });
 
-    $: pctMax = Array.isArray(poll?.options) && poll.options.length > 0
-        ? Math.max(1, poll.options.reduce((a, o) => a + ((o.votes?.length) ?? 0), 0))
-        : 0;
-
-    function deletePoll() {
-        onDeletePollCallback?.(poll)
-    }
-
-    async function castVote(option) {
-        if (!option) return;
-
-        if (selectedOptionId === option.id) {
-            const ok = await onRemoveVoteCallback?.(poll, user, firstUserVote, option);
-            if (!ok) return;
-        } else {
-            const ok = await onCastVoteCallback?.(poll, user, option);
-            if (!ok) return;
+        } catch (err) {
+            error = err?.message ?? "Could not cast vote.";
+        } finally {
+            isBusy = false;
         }
     }
 </script>
 
-<main>
-    <form class="card poll">
-        <div class="section">
-            <div class="row-inline">
-                <h4>{poll.question}</h4>
-
-                {#if caDelete}
-                    <button class="btn btn-ghost btn-sm" on:click|preventDefault={deletePoll}>
-                        Remove Poll
-                    </button>
-                {/if}
-            </div>
-
-            {#if poll.options != null && poll.options.length > 0}
-                {#each poll.options as option (option.id)}
-                    <div class="option-row" class:selected={selectedOptionId === option.id}
-                         style="--pct: {option.votes.length / pctMax * 100}%">
-                        <span class="label">{option.caption}</span>
-
-                        {#if user != null}
-                            <button class="vote-btn btn-sm" on:click|preventDefault={() => castVote(option)}>
-                                Vote!
-                            </button>
-                        {/if}
-
-                        <span class="count">{option.votes.length} votes</span>
-                    </div>
-                {/each}
-            {/if}
-        </div>
-    </form>
-</main>
+<div class="card">
+    <h3>{p.question}</h3>
+    <ul>
+        {#each p.options as o (o.id)}
+            <li>
+                <button disabled={isBusy} on:click={(e) => vote(e, o.id)}>
+                    {o.caption}
+                </button>
+                <span class="votes">{o.votes?.length ?? 0}</span>
+            </li>
+        {/each}
+    </ul>
+    {#if error}<p class="error">{error}</p>{/if}
+</div>
 
 <style>
-    .option-row.selected {
-        color: #1e3a8a;
-        background-color: #e0f7fa;
-        border: 2px solid #00acc1;
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        padding: 12px;
+        background: #fff;
+    }
+
+    h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+    }
+
+    ul {
+        display: grid;
+        gap: 6px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    button {
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid #aaa;
+        background: #f8f8f8;
+        cursor: pointer;
+    }
+
+    .votes {
+        font-variant-numeric: tabular-nums;
+        min-width: 2ch;
+        text-align: right;
+    }
+
+    .error {
+        color: #b00020;
+        margin-top: 8px;
     }
 </style>

@@ -1,119 +1,100 @@
-<script>
+<script lang="js">
     export let user;
-    export let onCreatePollCallback;
+
+    import {createPoll} from "../lib/store.js";
 
     let question = "";
+    let optionsText = "";
     let validUntil = "";
-    let voteOption = "";
-    let options = [];
+    let isBusy = false;
+    let error = null;
 
-    const hasUser = user != null && user.id != null;
     const today = new Date().toISOString().slice(0, 10);
-    $: isQuestionValid = question.trim().length >= 4;
-    $: isDateValid = validUntil && validUntil >= today;
-    $: hasEnoughOptions = options.length >= 2;
-    $: isFormValid = isQuestionValid && isDateValid && hasEnoughOptions && hasUser;
 
-    function createPoll() {
-        if (!isFormValid) return;
+    async function submit(e) {
+        e.preventDefault();
+        error = null;
 
-        const payload = {
-            question: question.trim(),
-            maxVotesPerUser: 1,
-            isPrivate: false,
-            creatorId: user.id,
-            publishedAt: (new Date(today + "T00:00:00Z")).toISOString(),
-            validUntil: (new Date(validUntil + "T00:00:00Z")).toISOString(),
-            options: options,
+        const opts = optionsText
+            .split("\n")
+            .map(s => s.trim())
+            .filter(Boolean);
+
+        if (!question.trim()) {
+            error = "Enter a question.";
+            return;
+        }
+        if (opts.length < 2) {
+            error = "Enter at least two options (one per line).";
+            return;
+        }
+        if (!validUntil || validUntil < today) {
+            error = "Enter date after today.";
+            return;
         }
 
-        if(!onCreatePollCallback?.(payload, user)) return;
+        isBusy = true;
+        try {
+            await createPoll({
+                question: question.trim(),
+                maxVotesPerUser: 1,
+                isPrivate: false,
+                creatorId: user.id,
+                publishedAt: (new Date(today + "T00:00:00Z")).toISOString(),
+                validUntil: (new Date(validUntil + "T00:00:00Z")).toISOString(),
+                options: opts,
+            });
+            question = "";
+            optionsText = "";
+            validUntil = "";
 
-        question = "";
-        validUntil = "";
-        options = [];
-        voteOption = "";
+        } catch (err) {
+            error = err?.message ?? "Could not create poll.";
+        } finally {
+            isBusy = false;
+        }
     }
-
-    /**
-     * @param {event} e
-     */
-    function addOption(e) {
-        e?.preventDefault();
-
-        const value = voteOption.trim();
-        if (!value) return;
-
-        const exists = options.some(o => o.toLowerCase() === value.toLowerCase());
-        if (exists) return;
-
-        options = [...options, value];
-        voteOption = "";
-    }
-
-    /**
-     * @param {number} i
-     */
-    function delOption(i) {
-        console.log(i)
-        options = options.filter((_, i) => i !== i);
-    }
-
 </script>
 
-<main>
-    <h2>Create Poll as {user.username}</h2>
+<form on:submit|preventDefault={submit} class="card">
+    <label>
+        <span>Question</span>
+        <input bind:value={question} placeholder="Your favorite language?"/>
+    </label>
+    <label>
+        <span>Options (one per line)</span>
+        <textarea bind:value={optionsText} rows="3" placeholder="enter option"></textarea>
+    </label>
+    <label>
+        <span>Valid Until</span>
+        <input bind:value={validUntil} type="date"/>
+    </label>
+    <button disabled={isBusy}>Create Poll</button>
+    {#if error}<p class="error">{error}</p>{/if}
+</form>
 
-    <form class="card" on:submit|preventDefault={createPoll}>
-        <div class="side-by-side">
-            <!-- left column -->
-            <div class="section">
-                <label class="row">
-                    <span>Question</span>
-                    <input bind:value={question} type="text" placeholder="Enter question" required/>
-                </label>
+<style>
+    .card {
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+    }
 
-                <label class="row">
-                    <span>Valid Until</span>
-                    <input bind:value={validUntil} type="date" required/>
-                </label>
-            </div>
+    input, textarea {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+    }
 
-            <!-- right column -->
-            <div class="section">
-                <label class="row">
-                    <span>Vote Options</span>
+    button {
+        width: fit-content;
+        padding: 8px 12px;
+        border-radius: 8px;
+    }
 
-                    <ul class="options-list">
-                        {#if options.length === 0}
-                            <li>
-                                <p style="font-size: .7rem">No options yet. Add at least two.</p>
-                            </li>
-                        {/if}
-                        {#each options as option, i}
-                            <li>
-                                <span>{option}</span>
-                                <button class="btn btn-ghost btn-sm" on:click|preventDefault={() => delOption(i)}>
-                                    ✖
-                                </button>
-                            </li>
-                        {/each}
-                    </ul>
-                </label>
-
-                <div class="add-row">
-                    <input bind:value={voteOption} type="text" placeholder="Enter vote option" on:keydown={(e) => {
-                        if (e.key === 'Enter') addOption(e);
-                    }}/>
-                    <button class="btn btn-ghost" on:click|preventDefault={addOption} disabled={!voteOption.trim()}>
-                        Add
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="actions">
-            <button type="submit" disabled={!isFormValid}>Create Poll</button>
-        </div>
-    </form>
-</main>
+    .error {
+        color: #b00020;
+    }
+</style>

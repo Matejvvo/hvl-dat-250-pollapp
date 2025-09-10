@@ -1,37 +1,25 @@
-<script>
+<script lang="js">
     export let user;
-    export let selectedUser;
-    export let onUserSelectChangeCallback;
-
-    function selectUser() {
-        onUserSelectChangeCallback?.(user);
-    }
-
-    $: isSelected = user.id === selectedUser?.id;
+    export let isSelected = false;
+    export let onSelect;
 </script>
 
-<main>
-    <button on:click={selectUser} class:selected={isSelected}>
-        <div><strong>ID:</strong> {user.id}</div>
-        <div><strong>Username:</strong> {user.username}</div>
-        <div><strong>Email:</strong> {user.email}</div>
-    </button>
-</main>
+<button class:selected={isSelected} on:click={() => onSelect?.(user)}>
+    {user.username}
+</button>
 
 <style>
-    div {
-        padding: 2px 0;
-    }
-
     button {
-        margin: 10px;
-        min-width: 170px;
-        min-height: 90px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid #999;
+        background: white;
+        cursor: pointer;
     }
 
     button.selected {
         background: #e8f0fe;
-        border: 1px solid #0e2d59;
+        border-color: #0e2d59;
         color: #1e3a8a;
     }
 </style>

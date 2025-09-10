@@ -6,5 +6,6 @@ import java.util.UUID;
 
 public record VoteCreateRequest(
         @NotNull UUID voterId,
-        @NotNull UUID optionId
+        @NotNull UUID optionId,
+        UUID pollId
 ) {}

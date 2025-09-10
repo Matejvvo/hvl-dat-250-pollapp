@@ -1,57 +1,74 @@
-<script>
-    export let onCreateUserCallback;
+<script lang="js">
+    import {createUser} from "../lib/store.js";
 
     let username = "";
     let email = "";
-    let password = "";
+    let isBusy = false;
+    let error = null;
 
-    $: isUsernameValid = username.trim().length >= 4;
-    $: isEmailValid = email.trim().length >= 4;
-    $: isPasswordValid = password.trim().length >= 4;
-    $: isFormValid = isUsernameValid && isEmailValid && isPasswordValid;
+    async function submit(e) {
+        e.preventDefault();
+        error = null;
 
-    function createUser() {
-        if (!isFormValid) return;
-
-        const payload = {
-            username: username,
-            email: email,
-            password: "not-used",
+        if (!username.trim()) {
+            error = "Please enter a username";
+            return;
+        }
+        if (!email.trim()) {
+            error = "Please enter an email";
+            return;
         }
 
-        if(!onCreateUserCallback?.(payload)) return;
+        isBusy = true;
+        try {
+            await createUser({
+                username: username.trim(),
+                email: email.trim(),
+            });
+            username = "";
+            email = "";
 
-        username = "";
-        email = "";
-        password = "";
+        } catch (err) {
+            error = err?.message ?? "Could not create user";
+        } finally {
+            isBusy = false;
+        }
     }
 </script>
 
-<main>
-    <h2>Create User</h2>
+<form on:submit|preventDefault={submit} class="card">
+    <label>
+        <span>Username</span>
+        <input bind:value={username} placeholder="Jane Doe"/>
+    </label>
+    <label>
+        <span>Email</span>
+        <input bind:value={email} placeholder="jane.doe@me.com"/>
+    </label>
+    <button disabled={isBusy}>Create User</button>
+    {#if error}<p class="error">{error}</p>{/if}
+</form>
 
-    <form class="card" on:submit|preventDefault={createUser}>
-        <div class="side-by-side">
-            <div class="section">
-                <label class="row">
-                    <span>Username</span>
-                    <input bind:value={username} type="text" placeholder="Enter your username" required/>
-                </label>
+<style>
+    .card {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
 
-                <label class="row">
-                    <span>Email</span>
-                    <input bind:value={email} type="email" placeholder="Enter your email" required/>
-                </label>
+    input {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
 
-                <label class="row">
-                    <span>Password</span>
-                    <input bind:value={password} type="password" placeholder="Enter your password" required/>
-                </label>
-            </div>
-        </div>
+    button {
+        padding: 8px 12px;
+        border-radius: 6px;
+    }
 
-        <div class="actions">
-            <button type="submit" disabled={!isFormValid}>Create User</button>
-        </div>
-    </form>
-</main>
+    .error {
+        color: #b00020;
+        margin: 0 0 0 8px;
+    }
+</style>
