@@ -2,20 +2,22 @@
     export let p;
     export let user;
 
-    import {voteOnPoll} from "../lib/store.js";
+    import {selectedOptionIdForPoll, userVoteIds, voteOnPoll} from "../lib/store.js";
 
     let isBusy = false;
     let error = null;
 
+    $: selectedOptionId = selectedOptionIdForPoll(p, $userVoteIds);
+
     async function vote(e, optionId) {
         e.preventDefault();
         error = null;
-        
+
         if (!user) {
             error = "Select a user first.";
             return;
         }
-        
+
         isBusy = true;
         try {
             await voteOnPoll({
@@ -25,7 +27,7 @@
             });
 
         } catch (err) {
-            error = err?.message ?? "Could not cast vote.";
+            error = "Could not cast vote.";
         } finally {
             isBusy = false;
         }
@@ -36,8 +38,9 @@
     <h3>{p.question}</h3>
     <ul>
         {#each p.options as o (o.id)}
-            <li>
-                <button disabled={isBusy} on:click={(e) => vote(e, o.id)}>
+            <li class:selected={o.id === selectedOptionId}>
+                <button disabled={isBusy} on:click={(e) => vote(e, o.id)} class:selected={o.id === selectedOptionId}>
+                    {#if o.id === selectedOptionId}✓ {/if}
                     {o.caption}
                 </button>
                 <span class="votes">{o.votes?.length ?? 0}</span>
@@ -46,6 +49,7 @@
     </ul>
     {#if error}<p class="error">{error}</p>{/if}
 </div>
+
 
 <style>
     .card {
@@ -73,6 +77,11 @@
         align-items: center;
         justify-content: space-between;
         gap: 8px;
+    }
+
+    li.selected button {
+        border-color: #0e2d59;
+        background: #e8f0fe;
     }
 
     button {

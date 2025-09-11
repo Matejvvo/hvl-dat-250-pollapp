@@ -18,6 +18,7 @@ function patchPollInStore(patch, pollId) {
 export const users = writable([]);
 export const polls = writable([]);
 export const selectedUser = writable(null);
+export const userVoteIds = writable(new Set());
 
 export async function loadUsers() {
     const data = await fetchJSON(`${API_BASE}/users`);
@@ -29,8 +30,29 @@ export async function loadPolls() {
     polls.set(data ?? []);
 }
 
+export async function loadUserVotes(userId) {
+    userVoteIds.set(new Set());
+    if (!userId) return;
+    const votes = await fetchJSON(`${API_BASE}/users/${userId}/votes`);
+    const set = new Set((votes ?? []).map((v) => v.id).filter(Boolean));
+    userVoteIds.set(set);
+}
+
+export function selectedOptionIdForPoll(poll, userVoteIdSet) {
+    if (!poll || !Array.isArray(poll.options) || !userVoteIdSet) return null;
+    for (const option of poll.options)
+        for (const v of Array.isArray(option.votes) ? option.votes : [])
+            if (v?.id && userVoteIdSet.has(v?.id))
+                return option.id;
+    return null;
+}
+
 export function selectUser(u) {
     selectedUser.set(u);
+    if (u?.id)
+        loadUserVotes(u.id).catch(() => userVoteIds.set(new Set()));
+    else
+        userVoteIds.set(new Set());
 }
 
 export async function createUser(payload) {
@@ -41,7 +63,8 @@ export async function createUser(payload) {
         email: payload.email,
         polls: [],
         votes: [],
-        __optimistic: true};
+        __optimistic: true
+    };
 
     users.update((arr) => [optimistic, ...arr]);
 
@@ -106,20 +129,26 @@ export async function voteOnPoll(payload) {
     );
 
     try {
-        await fetchJSON(`${API_BASE}/polls/${payload.pollId}/votes`, {
+        const createdVote = await fetchJSON(`${API_BASE}/polls/${payload.pollId}/votes`, {
             method: "POST",
             body: JSON.stringify(payload),
         });
 
+        if (createdVote.id) {
+            userVoteIds.update((set) => {
+                const next = new Set(set);
+                next.add(createdVote.id);
+                return next;
+            });
+        }
+
         const fresh = await fetchJSON(`${API_BASE}/polls/${payload.pollId}`);
         polls.update((list) =>
             list.map((p) =>
-                p.id === payload.pollId
-                    ? {
-                        ...fresh,
-                        options: (fresh.options ?? []).map((o) => ({...o, votes: (o.votes ?? [])})),
-                    }
-                    : p
+                p.id === payload.pollId ? {
+                    ...fresh,
+                    options: (fresh.options ?? []).map((o) => ({...o, votes: (o.votes ?? [])})),
+                } : p
             )
         );
 
