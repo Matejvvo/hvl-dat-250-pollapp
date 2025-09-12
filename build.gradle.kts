@@ -36,3 +36,15 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+tasks.named("build") {
+    dependsOn(":frontend:copyWebApp")
+}
+
+tasks.named("bootRun") {
+    dependsOn(":frontend:copyWebApp")
+}
+
+tasks.named<ProcessResources>("processResources") {
+    dependsOn(":frontend:copyWebApp")
+}

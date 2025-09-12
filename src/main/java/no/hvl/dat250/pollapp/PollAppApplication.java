@@ -12,9 +12,4 @@ public class PollAppApplication {
         SpringApplication.run(PollAppApplication.class, args);
         System.out.println("PollAppApplication started ...");
     }
-
-    @GetMapping("/")
-    public String home() {
-        return "<h1>Welcome to PollApp</h1>";
-    }
 }
