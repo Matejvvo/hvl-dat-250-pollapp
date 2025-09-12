@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class PollAppApplication {
     public static void main(String[] args) {
         SpringApplication.run(PollAppApplication.class, args);
-        System.out.println("PollAppApplication started ...");
+        System.out.println("PollAppApplication started (front end + back end)...");
     }
 }
