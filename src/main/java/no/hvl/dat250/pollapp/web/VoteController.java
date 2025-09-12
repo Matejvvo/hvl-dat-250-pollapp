@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@CrossOrigin
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/votes")
 public class VoteController {
     private final VoteService voteService;
