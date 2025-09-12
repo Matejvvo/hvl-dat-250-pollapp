@@ -30,11 +30,6 @@ tasks.named("build") {
     dependsOn(":backend:build")
 }
 
-tasks.named("clean") {
-    description = "Cleans all modules"
-    dependsOn(":backend:clean", ":frontend:clean")
-}
-
 tasks.register("test") {
     group = "verification"
     description = "Runs backend tests"
