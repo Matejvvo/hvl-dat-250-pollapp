@@ -8,7 +8,7 @@ async function fetchJSON(url, init) {
         const text = await res.text().catch(() => "");
         throw new Error(text || `HTTP ${res.status}`);
     }
-    if (res.statis === 204) return null;
+    if (res.status === 204) return null;
     return res.headers.get("content-type")?.includes("application/json") ? res.json() : res.text();
 }
 
@@ -114,27 +114,20 @@ export async function voteOnPoll(payload) {
 }
 
 export async function removeVoteFromPoll({pollId, optionId}) {
-    // todo
-
-    const voteIdSet = get(userVoteIds);
-
-    const poll = get(polls).find((p) => p.id === pollId);
     let voteId = null;
-
+    const poll = get(polls).find((p) => p.id === pollId);
     if (poll) {
         const opt = (poll.options || []).find((o) => o.id === optionId);
         if (opt) {
             for (const v of Array.isArray(opt.votes) ? opt.votes : []) {
-                if (v?.id && voteIdSet.has(v?.id)) {
+                if (v?.id && get(userVoteIds).has(v?.id)) {
                     voteId = v?.id;
                     break;
                 }
             }
         }
     }
-
-    if (!voteId)
-        throw new Error("No matching vote to remove for this user on this option.");
+    if (!voteId) throw new Error("No matching vote to remove for this user on this option.");
 
     try {
         await fetchJSON(`${API_BASE}/votes/${voteId}`, {method: "DELETE"});
