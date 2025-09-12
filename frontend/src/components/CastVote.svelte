@@ -2,7 +2,7 @@
     export let p;
     export let user;
 
-    import {selectedOptionIdForPoll, userVoteIds, voteOnPoll} from "../lib/store.js";
+    import {selectedOptionIdForPoll, userVoteIds, voteOnPoll, removeVoteFromPoll} from "../lib/store.js";
 
     let isBusy = false;
     let error = null;
@@ -20,14 +20,21 @@
 
         isBusy = true;
         try {
-            await voteOnPoll({
-                voterId: user.id,
-                optionId: optionId,
-                pollId: p.id,
-            });
+            if (optionId !== selectedOptionId) {
+                await voteOnPoll({
+                    voterId: user.id,
+                    optionId: optionId,
+                    pollId: p.id,
+                });
+            } else {
+                await removeVoteFromPoll({
+                    pollId: p.id,
+                    optionId: optionId,
+                });
+            }
 
         } catch (err) {
-            error = "Could not cast vote.";
+            error = err?.message ?? "Could not cast vote.";
         } finally {
             isBusy = false;
         }
@@ -40,8 +47,7 @@
         {#each p.options as o (o.id)}
             <li class:selected={o.id === selectedOptionId}>
                 <button disabled={isBusy} on:click={(e) => vote(e, o.id)} class:selected={o.id === selectedOptionId}>
-                    {#if o.id === selectedOptionId}✓ {/if}
-                    {o.caption}
+                    {#if o.id === selectedOptionId}✓ {/if}{o.caption}
                 </button>
                 <span class="votes">{o.votes?.length ?? 0}</span>
             </li>
