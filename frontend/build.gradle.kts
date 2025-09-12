@@ -1,22 +1,36 @@
-import com.github.gradle.node.npm.task.NpmTask
-
 plugins {
-    id("com.github.node-gradle.node") version "7.0.2"
+    id("com.github.node-gradle.node")
 }
+
+val frontendDir = rootProject.layout.projectDirectory.dir("frontend")
+val backendDir = rootProject.layout.projectDirectory.dir("backend")
+
 
 node {
-    version = "22.0.0"
-    npmVersion = "10.5.1"
-    download = true
+    npmInstallCommand.set("ci")
 }
 
-tasks.register<NpmTask>("runBuild") {
-    args = listOf("run", "build")
-    workingDir = file(".")
+tasks.named<com.github.gradle.node.npm.task.NpmTask>("npmInstall") {
+    workingDir.set(frontendDir.asFile)
+}
+
+tasks.named("npmInstall") {
+    inputs.file(frontendDir.file("package-lock.json"))
+    outputs.dir(frontendDir.dir("node_modules"))
+}
+
+val npmBuild by tasks.registering(com.github.gradle.node.npm.task.NpmTask::class) {
+    dependsOn("npmInstall")
+    workingDir.set(frontendDir.asFile)
+    args.set(listOf("run", "build"))
+    inputs.dir(frontendDir.dir("src"))
+    inputs.file(frontendDir.file("package.json"))
+    inputs.file(frontendDir.file("package-lock.json"))
+    outputs.dir(frontendDir.dir("dist"))
 }
 
 tasks.register<Copy>("copyWebApp") {
-    from("dist")
-    into(rootProject.layout.projectDirectory.dir("src/main/resources/static"))
-    dependsOn("runBuild")
+    dependsOn(npmBuild)
+    from(frontendDir.dir("dist"))
+    into(backendDir.dir("src/main/resources/static"))
 }

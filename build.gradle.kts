@@ -1,50 +1,54 @@
 plugins {
-	java
-	id("org.springframework.boot") version "3.5.5"
-	id("io.spring.dependency-management") version "1.1.7"
+    base
+    id("org.springframework.boot") version "3.5.5" apply false
+    id("io.spring.dependency-management") version "1.1.7" apply false
+    id("com.github.node-gradle.node") version "7.0.2" apply false
 }
 
-group = "no.hvl.dat250"
-version = "0.0.1-SNAPSHOT"
-description = "Simple Poll & Voting App"
+subprojects {
+    repositories {
+        mavenCentral()
+    }
 
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
-}
+    plugins.withId("com.github.node-gradle.node") {
+        the<com.github.gradle.node.NodeExtension>().apply {
+            version.set("22.18.0")
+            npmVersion.set("10.9.3")
+            download.set(true)
 
-repositories {
-	mavenCentral()
-}
-
-dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
-
-    runtimeOnly("com.h2database:h2")
-
-    implementation("org.apache.commons:commons-lang3:3.18.0")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
-
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-tasks.withType<Test> {
-	useJUnitPlatform()
+            val base = rootProject.layout.projectDirectory.dir(".gradle/node")
+            workDir.set(base.dir("nodejs"))
+            npmWorkDir.set(base.dir("npm"))
+            yarnWorkDir.set(base.dir("yarn"))
+            pnpmWorkDir.set(base.dir("pnpm"))
+        }
+    }
 }
 
 tasks.named("build") {
-    dependsOn(":frontend:copyWebApp")
+    description = "Builds the backend (and anything it depends on)"
+    dependsOn(":backend:build")
 }
 
-tasks.named("bootRun") {
-    dependsOn(":frontend:copyWebApp")
+tasks.named("clean") {
+    description = "Cleans all modules"
+    dependsOn(":backend:clean", ":frontend:clean")
 }
 
-tasks.named<ProcessResources>("processResources") {
-    dependsOn(":frontend:copyWebApp")
+tasks.register("test") {
+    group = "verification"
+    description = "Runs backend tests"
+    dependsOn(":backend:test")
+}
+
+tasks.register("bootRun") {
+    group = "application"
+    description = "Runs the Spring Boot app from :backend"
+    dependsOn(":backend:bootRun")
+}
+
+tasks.register("run") {
+    group = "application"
+    description = "Alias for bootRun"
+    dependsOn("bootRun")
 }

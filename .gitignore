@@ -61,4 +61,5 @@ dist-ssr
 *.sw?
 
 # Ignore generated frontend build in backend
-/src/main/resources/static/
+/backend/src/main/resources/static/
+
