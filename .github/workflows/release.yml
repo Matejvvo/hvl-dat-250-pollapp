@@ -21,14 +21,21 @@ jobs:
           java-version: '24'
           distribution: 'temurin'
 
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npx npm ci
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
+      - name: Run JUnit tests
+        run: ./gradlew --no-daemon test
+
       - name: Build JAR
-        run: ./gradlew --no-daemon clean build
+        run: ./gradlew --no-daemon clean build -x test
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

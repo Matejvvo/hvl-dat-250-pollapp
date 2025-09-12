@@ -1,8 +1,17 @@
-name: Gradle + Endpoint Tests
+name: Basic JUnit and Endpoint tests
 
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'backend/src/**'
+      - 'frontend/src/**'
+      - 'scratch_tests/**'
+      - '**/*.java'
+      - '**/*.kt'
+      - '**/*.kts'
+      - '**/*.properties'
 
 jobs:
   junittest:
@@ -16,6 +25,10 @@ jobs:
         with:
           java-version: '24'
           distribution: 'temurin'
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npx npm ci
 
       - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
@@ -39,6 +52,10 @@ jobs:
           java-version: '24'
           distribution: 'temurin'
 
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npx npm ci
+
       - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
@@ -57,8 +74,7 @@ jobs:
         run: npm install -g httpyac wait-on
 
       - name: Run app in background
-        run: |
-          nohup ./gradlew bootRun --args="--server.port=8080 --spring.profiles.active=test" > app.log 2>&1 &
+        run: nohup ./gradlew bootRun --args="--server.port=8080 --spring.profiles.active=test" > app.log 2>&1 &
 
       - name: Wait for app (60s)
         run: npx wait-on --timeout 60000 http://localhost:8080/
@@ -66,6 +82,8 @@ jobs:
       - name: Run endpoint tests with httpyac
         env:
           HTTPYAC_NO_PROMPT: "true"
-        run: |
-          set -euo pipefail
-          httpyac ./scratch_tests/flow_test.http --all --bail --verbose
+        run: httpyac ./scratch_tests/flow_test.http --all --bail --verbose
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
