@@ -2,23 +2,29 @@ package no.hvl.dat250.pollapp.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 
 import java.time.Instant;
 import java.util.*;
 
+@Entity
 public class Poll {
     // --- Attributes ---
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String question;
     private Instant publishedAt;
     private Instant validUntil;
     private int maxVotesPerUser;
     private boolean isPrivate;
-    private Set<User> allowedVoters = new HashSet<>();
+    @ManyToMany private Set<User> allowedVoters = new HashSet<>();
 
     // --- Associations ---
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference(value = "poll-user")
     private User creator;
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "poll-option")
     private List<VoteOption> options = new ArrayList<>();
 
@@ -124,5 +130,15 @@ public class Poll {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    // JPA
+    public VoteOption addVoteOption(String caption) {
+        VoteOption voteOption = new VoteOption();
+        voteOption.setCaption(caption);
+        voteOption.setPoll(this);
+        voteOption.setPresentationOrder(this.options.size());
+        this.options.add(voteOption);
+        return voteOption;
     }
 }

@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -18,7 +17,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 // Basic tests
 
 @SpringBootTest
-@Transactional
 @DirtiesContext
 class PollAppApplicationTests {
     @Autowired

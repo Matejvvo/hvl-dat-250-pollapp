@@ -1,21 +1,30 @@
 package no.hvl.dat250.pollapp.domain;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+@Entity
+@Table(name = "users")
 public class User {
     // --- Attributes --
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String username;
     private String email;
 
     // Associations
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "poll-user")
     private Set<Poll> polls = new HashSet<>();
+    @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "vote-user")
     private Set<Vote> votes = new HashSet<>();
 
@@ -85,5 +94,32 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    // JPA
+    public User(String username, String email) {
+        this.username = username;
+        this.email = email;
+    }
+
+    public Poll createPoll(String question) {
+        Poll poll = new Poll();
+        poll.setQuestion(question);
+        poll.setCreator(this);
+        poll.setMaxVotesPerUser(1);
+        poll.setIsPrivate(false);
+        poll.setPublishedAt(Instant.now());
+        poll.setValidUntil(Instant.now().plus(10, ChronoUnit.DAYS));
+        polls.add(poll);
+        return poll;
+    }
+
+    public Vote voteFor(VoteOption option) {
+        Vote vote = new Vote();
+        vote.setOption(option);
+        vote.setVoter(this);
+        vote.setPublishedAt(Instant.now());
+        votes.add(vote);
+        return vote;
     }
 }

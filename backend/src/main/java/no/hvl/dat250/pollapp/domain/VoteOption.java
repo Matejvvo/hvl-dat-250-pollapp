@@ -2,21 +2,27 @@ package no.hvl.dat250.pollapp.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+@Entity
 public class VoteOption {
     // --- Attributes ---
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String caption;
     private int presentationOrder;
 
     // --- Associations ---
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference(value = "poll-option")
     private Poll poll;
+    @OneToMany(mappedBy = "option", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "option-vote")
     private Set<Vote> votes = new HashSet<>();
 

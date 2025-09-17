@@ -1,19 +1,25 @@
 package no.hvl.dat250.pollapp.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
 
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
+@Entity
 public class Vote {
     // --- Attributes ---
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private Instant publishedAt;
 
     // --- Associations ---
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference(value = "vote-user")
     private User voter;
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference(value = "option-vote")
     private VoteOption option;
 
