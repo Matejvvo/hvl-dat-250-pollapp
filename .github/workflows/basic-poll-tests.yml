@@ -1,12 +1,14 @@
 name: Basic JUnit and Endpoint tests
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
     paths:
       - 'src/**'
       - 'backend/src/**'
       - 'frontend/src/**'
+      - 'redis/src/**'
       - 'scratch_tests/**'
       - '**/*.java'
       - '**/*.kt'
@@ -77,7 +79,7 @@ jobs:
         run: nohup ./gradlew bootRun > app.log 2>&1 &
 
       - name: Wait for app (60s)
-        run: npx wait-on --timeout 60000 http://localhost:8080/
+        run: npx wait-on --timeout 60000 http://localhost:8001/
 
       - name: Run endpoint tests with httpyac
         env:
