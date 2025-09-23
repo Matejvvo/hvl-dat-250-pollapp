@@ -2,6 +2,7 @@
 
 - [GitHub repository](https://github.com/Matejvvo/hvl-dat-250-pollapp/)
 - [Assignment](https://github.com/selabhvl/dat250public/blob/master/expassignments/expass5.md)
+- [Redis Demo](https://github.com/Matejvvo/hvl-dat-250-pollapp/tree/main/redis)
 
 ## Setup
 
@@ -97,7 +98,13 @@ redis-cli SHUTDOWN  # Stop the server
 (integer) 270
 ```
 
-## Java & Report
+## Java Demo
+
+I have successfully implemented a simple Redis demo in `redis/src/main/java/no/hvl/dat250/redis/RedisApplication.java`. The demo shows a basic use-case with 4 users, 1 poll, and some votes. On the first aggregates fetch, the information is calculated and stored in the cache. The second user then just receives the cached info. Each poll in the cache gets invalidated after 10 minutes or when a new vote is cast. This is demonstrated in the third aggregates fetch.
 
 
+## Implementation in PollApp
 
+I tried implementing Redis into my App. I got it installed and running, and some information is stored and fetched correctly. The big issue I faced was having to change all UUIDs to Strings, along with their respective use in function calls.
+
+However, since Redis’s key-value pairs only store IDs for associations, I wasn’t able to get the voting functionality working. Because of my poor domain model from the beginning, I can’t just update a few methods to support ID associations instead of the corresponding objects. It would require a lot of refactoring across the whole app.
