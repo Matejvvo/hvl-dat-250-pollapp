@@ -31,11 +31,11 @@ class PollAppApplicationTests {
         // Create a new user
         User u1 = userService.create("alice", "alice@example.com", "ignored");
         assertThat(u1).isNotNull();
-        assertThat(u1.getId()).isNotNull();
+        assertThat(u1.getIdAsUUID()).isNotNull();
 
         // List all users
         List<User> usersAfterU1 = userService.list();
-        assertThat(usersAfterU1).extracting(User::getId).containsExactly(u1.getId());
+        assertThat(usersAfterU1).extracting(User::getId).containsExactly(u1.getIdAsUUID());
 
         // Create another user
         User u2 = userService.create("bob", "bob@example.com", "ignored");
@@ -44,7 +44,7 @@ class PollAppApplicationTests {
         // List all users again
         List<User> usersAfterU2 = userService.list();
         assertThat(usersAfterU2).hasSize(2);
-        assertThat(usersAfterU2).extracting(User::getId).contains(u1.getId(), u2.getId());
+        assertThat(usersAfterU2).extracting(User::getId).contains(u1.getIdAsUUID(), u2.getIdAsUUID());
 
         // User 1 creates a new poll
         Instant publishedAt = Instant.now().minus(1, ChronoUnit.HOURS);
@@ -54,53 +54,53 @@ class PollAppApplicationTests {
                 "What is your favorite color?",
                 1,
                 false,
-                u1.getId(),
+                u1.getIdAsUUID(),
                 publishedAt,
                 validUntil,
                 List.of("Yellow")
         );
         assertThat(poll).isNotNull();
-        assertThat(poll.getId()).isNotNull();
+        assertThat(poll.getIdAsUUID()).isNotNull();
 
         // Add options explicitly
-        VoteOption red   = pollService.addVoteOption(poll.getId(), "Red");
-        VoteOption green = pollService.addVoteOption(poll.getId(), "Green");
+        VoteOption red   = pollService.addVoteOption(poll.getIdAsUUID(), "Red");
+        VoteOption green = pollService.addVoteOption(poll.getIdAsUUID(), "Green");
         assertThat(red).isNotNull();
         assertThat(green).isNotNull();
 
         // List polls
         List<Poll> polls = pollService.list();
-        assertThat(polls).extracting(Poll::getId).contains(poll.getId());
+        assertThat(polls).extracting(Poll::getId).contains(poll.getIdAsUUID());
 
         // User 2 votes on the poll
-        Vote firstVote = pollService.castVote(u2.getId(), poll.getId(), red.getId());
+        Vote firstVote = pollService.castVote(u2.getIdAsUUID(), poll.getIdAsUUID(), red.getIdAsUUID());
         assertThat(firstVote).isNotNull();
-        assertThat(firstVote.getVoter().getId()).isEqualTo(u2.getId());
-        assertThat(firstVote.getOption().getId()).isEqualTo(red.getId());
+        assertThat(firstVote.getVoter().getIdAsUUID()).isEqualTo(u2.getIdAsUUID());
+        assertThat(firstVote.getOption().getIdAsUUID()).isEqualTo(red.getIdAsUUID());
 
         // List votes
         List<Vote> votesNow1 = voteService.list();
         assertThat(votesNow1).hasSize(1);
-        assertThat(votesNow1.getFirst().getVoter().getId()).isEqualTo(u2.getId());
-        assertThat(votesNow1.getFirst().getOption().getId()).isEqualTo(red.getId());
+        assertThat(votesNow1.getFirst().getVoter().getIdAsUUID()).isEqualTo(u2.getIdAsUUID());
+        assertThat(votesNow1.getFirst().getOption().getIdAsUUID()).isEqualTo(red.getIdAsUUID());
 
         // User 2 changes his vote
-        Vote updatedVote = voteService.update(firstVote.getId(), u2.getId(), green.getId());
+        Vote updatedVote = voteService.update(firstVote.getIdAsUUID(), u2.getIdAsUUID(), green.getIdAsUUID());
         assertThat(updatedVote).isNotNull();
-        assertThat(updatedVote.getId()).isEqualTo(firstVote.getId());
-        assertThat(updatedVote.getOption().getId()).isEqualTo(green.getId());
+        assertThat(updatedVote.getIdAsUUID()).isEqualTo(firstVote.getIdAsUUID());
+        assertThat(updatedVote.getOption().getIdAsUUID()).isEqualTo(green.getIdAsUUID());
 
         // List votes
         List<Vote> votesNow2 = voteService.list();
         assertThat(votesNow2).hasSize(1);
-        assertThat(votesNow2.getFirst().getVoter().getId()).isEqualTo(u2.getId());
-        assertThat(votesNow2.getFirst().getOption().getId()).isEqualTo(green.getId());
+        assertThat(votesNow2.getFirst().getVoter().getIdAsUUID()).isEqualTo(u2.getIdAsUUID());
+        assertThat(votesNow2.getFirst().getOption().getIdAsUUID()).isEqualTo(green.getIdAsUUID());
 
         // Try aggregated results
-        assertThat(pollService.getAggregatedResults(poll.getId()));
+        assertThat(pollService.getAggregatedResults(poll.getIdAsUUID()));
 
         // Delete the one poll
-        pollService.delete(poll.getId());
+        pollService.delete(poll.getIdAsUUID());
 
         // List votes
         List<Vote> votesAfterDelete = voteService.list();

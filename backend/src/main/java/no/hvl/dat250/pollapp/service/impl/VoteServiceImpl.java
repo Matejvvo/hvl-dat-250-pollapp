@@ -1,7 +1,9 @@
 package no.hvl.dat250.pollapp.service.impl;
 
 import no.hvl.dat250.pollapp.domain.*;
-import no.hvl.dat250.pollapp.repository.*;
+import no.hvl.dat250.pollapp.repository.interfaces.PollRepo;
+import no.hvl.dat250.pollapp.repository.interfaces.UserRepo;
+import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
 import no.hvl.dat250.pollapp.service.VoteService;
 
 import org.springframework.stereotype.Service;
@@ -48,7 +50,7 @@ public class VoteServiceImpl implements VoteService {
         if (user == null || vote == null) return null;
 
         User owner = vote.getVoter();
-        if (owner == null || !owner.getId().equals(userId)) return null;
+        if (owner == null || !owner.getIdAsUUID().equals(userId)) return null;
 
         VoteOption currentOption = vote.getOption();
         if (currentOption == null || currentOption.getPoll() == null) return null;
@@ -61,19 +63,19 @@ public class VoteServiceImpl implements VoteService {
 
         // Find the new option within the same poll
         VoteOption newOption = poll.getOptions().stream()
-                .filter(opt -> optionId.equals(opt.getId()))
+                .filter(opt -> optionId.equals(opt.getIdAsUUID()))
                 .findFirst()
                 .orElse(null);
         if (newOption == null) return null;
 
         // If unchanged, just return current
-        if (currentOption.getId().equals(newOption.getId())) return vote;
+        if (currentOption.getIdAsUUID().equals(newOption.getIdAsUUID())) return vote;
 
         // Prevent multiple votes for the same option by this user (excluding this vote)
         boolean alreadyVotedThisOption = owner.getVotes().stream()
-                .anyMatch(v -> !voteId.equals(v.getId())
+                .anyMatch(v -> !voteId.equals(v.getIdAsUUID())
                         && v.getOption() != null
-                        && optionId.equals(v.getOption().getId()));
+                        && optionId.equals(v.getOption().getIdAsUUID()));
         if (alreadyVotedThisOption) return null;
 
         // Update bidirectional relationships
@@ -84,9 +86,9 @@ public class VoteServiceImpl implements VoteService {
         // Persist change
         // Ensure owner's vote list contains this vote
         vote = voteRepo.save(vote);
-        UUID vid = vote.getId();
+        UUID vid = vote.getIdAsUUID();
         boolean alreadyVoted = owner.getVotes().stream()
-                .anyMatch(v -> v.getId().equals(vid));
+                .anyMatch(v -> v.getIdAsUUID().equals(vid));
         if (owner.getVotes() != null && !alreadyVoted)
             owner.getVotes().add(vote);
 

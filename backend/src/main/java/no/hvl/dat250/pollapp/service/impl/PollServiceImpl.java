@@ -1,7 +1,9 @@
 package no.hvl.dat250.pollapp.service.impl;
 
 import no.hvl.dat250.pollapp.domain.*;
-import no.hvl.dat250.pollapp.repository.*;
+import no.hvl.dat250.pollapp.repository.interfaces.PollRepo;
+import no.hvl.dat250.pollapp.repository.interfaces.UserRepo;
+import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
 import no.hvl.dat250.pollapp.service.PollService;
 
 import org.springframework.stereotype.Service;
@@ -50,7 +52,7 @@ public class PollServiceImpl implements PollService {
         if (options != null && !options.isEmpty())
             for (String o : options)
                 if (o != null && !o.isBlank())
-                    addVoteOption(poll.getId(), o);
+                    poll.getOptions().add(addVoteOption(poll.getIdAsUUID(), o, true));
 
         creator.getPolls().add(poll);
         poll = pollRepo.save(poll);
@@ -107,6 +109,11 @@ public class PollServiceImpl implements PollService {
 
     @Override
     public VoteOption addVoteOption(UUID pollId, String caption) {
+        return  addVoteOption(pollId, caption, false);
+    }
+
+    @Override
+    public VoteOption addVoteOption(UUID pollId, String caption, boolean justReturn) {
         if (pollId == null || caption == null || caption.isBlank()) return null;
 
         Poll poll = pollRepo.findById(pollId);
@@ -126,7 +133,8 @@ public class PollServiceImpl implements PollService {
         voteOption.setPoll(poll);
         voteOption.setVotes(new HashSet<>());
 
-        poll.getOptions().add(voteOption);
+        if (!justReturn)
+            poll.getOptions().add(voteOption);
         return voteOption;
     }
 
@@ -145,7 +153,7 @@ public class PollServiceImpl implements PollService {
         Poll poll = pollRepo.findById(pollId);
         if (poll == null) return;
         VoteOption option = poll.getOptions().stream()
-                .filter(opt -> optionId.equals(opt.getId()))
+                .filter(opt -> optionId.equals(opt.getIdAsUUID()))
                 .findFirst()
                 .orElse(null);
         if (option == null) return;
@@ -203,7 +211,7 @@ public class PollServiceImpl implements PollService {
 
         // Find the option within this poll
         VoteOption selectedOption = poll.getOptions().stream()
-                .filter(opt -> optionId.equals(opt.getId()))
+                .filter(opt -> optionId.equals(opt.getIdAsUUID()))
                 .findFirst()
                 .orElse(null);
         if (selectedOption == null) return null;
@@ -212,13 +220,13 @@ public class PollServiceImpl implements PollService {
         long userVoteCount = voter.getVotes().stream()
                 .filter(v -> v.getOption() != null
                         && v.getOption().getPoll() != null
-                        && pollId.equals(v.getOption().getPoll().getId()))
+                        && pollId.equals(v.getOption().getPoll().getIdAsUUID()))
                 .count();
         if (userVoteCount >= poll.getMaxVotesPerUser()) return null;
 
         // Prevent multiple votes for the same option
         boolean alreadyVotedThisOption = voter.getVotes().stream()
-                .anyMatch(v -> v.getOption() != null && optionId.equals(v.getOption().getId()));
+                .anyMatch(v -> v.getOption() != null && optionId.equals(v.getOption().getIdAsUUID()));
         if (alreadyVotedThisOption) return null;
 
         Vote vote = new Vote();
@@ -263,7 +271,7 @@ public class PollServiceImpl implements PollService {
 
         StringBuilder sb = new StringBuilder(512);
         sb.append('{')
-                .append("\"pollId\":\"").append(poll.getId()).append("\",")
+                .append("\"pollId\":\"").append(poll.getIdAsUUID()).append("\",")
                 .append("\"question\":\"").append(jsonEscape(poll.getQuestion())).append("\",")
                 .append("\"isPrivate\":").append(poll.getIsPrivate()).append(',')
                 .append("\"publishedAt\":\"").append(poll.getPublishedAt() != null ? poll.getPublishedAt().toString() : "").append("\",")
@@ -282,7 +290,7 @@ public class PollServiceImpl implements PollService {
             pct = Math.round(pct * 100.0) / 100.0;
 
             sb.append('{')
-                    .append("\"optionId\":\"").append(opt.getId()).append("\",")
+                    .append("\"optionId\":\"").append(opt.getIdAsUUID()).append("\",")
                     .append("\"caption\":\"").append(jsonEscape(opt.getCaption())).append("\",")
                     .append("\"order\":").append(opt.getPresentationOrder()).append(',')
                     .append("\"votes\":").append(count).append(',')
@@ -317,14 +325,14 @@ public class PollServiceImpl implements PollService {
             // Try user object first
             User u = v.getVoter();
             if (u != null) {
-                if (u.getId() != null) userId = u.getId().toString();
+                if (u.getIdAsUUID() != null) userId = u.getId();
                 if (u.getUsername() != null) displayName = u.getUsername();
                 else if (u.getEmail() != null) displayName = u.getEmail();
-                else displayName = u.getId().toString();
+                else displayName = u.getId();
             }
             // Fallback: direct userId on Vote (if your model has it)
-            if (userId.isEmpty() && v.getId() != null) {
-                userId = v.getId().toString();
+            if (userId.isEmpty() && v.getIdAsUUID() != null) {
+                userId = v.getId();
             }
             // Timestamp (createdAt / votedAt depending on your model)
             if (v.getPublishedAt() != null) votedAt = v.getPublishedAt().toString();
@@ -366,7 +374,7 @@ public class PollServiceImpl implements PollService {
                 if (vote.getVoter() != null && vote.getVoter().getVotes() != null) {
                     vote.getVoter().getVotes().remove(vote);
                 }
-                voteRepo.deleteById(vote.getId());
+                voteRepo.deleteById(vote.getIdAsUUID());
             }
         }
     }

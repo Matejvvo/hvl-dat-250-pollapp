@@ -1,7 +1,9 @@
 package no.hvl.dat250.pollapp.service.impl;
 
 import no.hvl.dat250.pollapp.domain.*;
-import no.hvl.dat250.pollapp.repository.*;
+import no.hvl.dat250.pollapp.repository.interfaces.PollRepo;
+import no.hvl.dat250.pollapp.repository.interfaces.UserRepo;
+import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
 import no.hvl.dat250.pollapp.service.UserService;
 
 import org.springframework.stereotype.Service;
@@ -75,12 +77,12 @@ public class UserServiceImpl implements UserService {
         User user = userRepo.findById(userId);
         if (user == null) return;
 
-        user.getVotes().forEach(v -> voteRepo.deleteById(v.getId()));
+        user.getVotes().forEach(v -> voteRepo.deleteById(v.getIdAsUUID()));
         user.getPolls().forEach(p -> p.getOptions().forEach(o -> o.getVotes().forEach(v -> {
             v.getVoter().getVotes().remove(v);
-            voteRepo.deleteById(v.getId());
+            voteRepo.deleteById(v.getIdAsUUID());
         })));
-        user.getPolls().forEach(p -> pollRepo.deleteById(p.getId()));
+        user.getPolls().forEach(p -> pollRepo.deleteById(p.getIdAsUUID()));
 
         userRepo.deleteById(userId);
     }

@@ -35,10 +35,10 @@ class UserServiceImplIT {
         assertThat(u.getUsername()).isEqualTo("alice");
         assertThat(u.getEmail()).isEqualTo("alice@example.com");
 
-        assertThat(userService.list()).extracting(User::getId).contains(u.getId());
-        assertThat(userService.get(u.getId()).getUsername()).isEqualTo("alice");
+        assertThat(userService.list()).extracting(User::getIdAsUUID).contains(u.getIdAsUUID());
+        assertThat(userService.get(u.getIdAsUUID()).getUsername()).isEqualTo("alice");
 
-        User upd = userService.update(u.getId(), "  alice2 ", "  a2@example.com ");
+        User upd = userService.update(u.getIdAsUUID(), "  alice2 ", "  a2@example.com ");
         assertThat(upd.getUsername()).isEqualTo("alice2");
         assertThat(upd.getEmail()).isEqualTo("a2@example.com");
     }
@@ -53,21 +53,21 @@ class UserServiceImplIT {
                 "Q?",
                 1,
                 false,
-                owner.getId(),
+                owner.getIdAsUUID(),
                 now.minus(1, ChronoUnit.HOURS),
                 now.plus(1, ChronoUnit.DAYS),
                 List.of()
         );
-        VoteOption o = pollService.addVoteOption(p.getId(), "O1");
-        pollService.castVote(voter.getId(), p.getId(), o.getId());
+        VoteOption o = pollService.addVoteOption(p.getIdAsUUID(), "O1");
+        pollService.castVote(voter.getIdAsUUID(), p.getIdAsUUID(), o.getIdAsUUID());
 
         // sanity
-        assertThat(userService.listPolls(owner.getId())).extracting(Poll::getId).contains(p.getId());
+        assertThat(userService.listPolls(owner.getIdAsUUID())).extracting(Poll::getIdAsUUID).contains(p.getIdAsUUID());
 
         // delete owner → their poll is deleted too
-        userService.delete(owner.getId());
+        userService.delete(owner.getIdAsUUID());
 
         // voter’s votes should have been removed by poll delete cascade
-        assertThat(userService.listVotes(voter.getId())).isEmpty();
+        assertThat(userService.listVotes(voter.getIdAsUUID())).isEmpty();
     }
 }

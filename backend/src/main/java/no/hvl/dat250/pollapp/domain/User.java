@@ -2,6 +2,8 @@ package no.hvl.dat250.pollapp.domain;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.springframework.data.annotation.Reference;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -10,22 +12,20 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-@Entity
-@Table(name = "users")
+@RedisHash("users")
 public class User {
     // --- Attributes --
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
     private String username;
     private String email;
 
     // Associations
-    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "poll-user")
+    @Reference
     private Set<Poll> polls = new HashSet<>();
-    @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "vote-user")
+    @Reference
     private Set<Vote> votes = new HashSet<>();
 
     // --- Public Bean Constructor ---
@@ -33,12 +33,16 @@ public class User {
     }
 
     // --- Getters & Setters ---
-    public UUID getId() {
-        return id;
+    public UUID getIdAsUUID() {
+        return UUID.fromString(id);
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public String getId() {
+        return this.id;
+    }
+
+    public void setId(UUID uuid) {
+        this.id = uuid.toString();
     }
 
     public String getUsername() {

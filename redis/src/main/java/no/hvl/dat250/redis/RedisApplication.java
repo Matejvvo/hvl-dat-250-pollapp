@@ -3,9 +3,9 @@ package no.hvl.dat250.redis;
 import no.hvl.dat250.pollapp.domain.Poll;
 import no.hvl.dat250.pollapp.domain.User;
 import no.hvl.dat250.pollapp.domain.VoteOption;
-import no.hvl.dat250.pollapp.repository.PollRepo;
-import no.hvl.dat250.pollapp.repository.UserRepo;
-import no.hvl.dat250.pollapp.repository.VoteRepo;
+import no.hvl.dat250.pollapp.repository.interfaces.PollRepo;
+import no.hvl.dat250.pollapp.repository.interfaces.UserRepo;
+import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
 import no.hvl.dat250.pollapp.repository.inmem.PollRepoInMem;
 import no.hvl.dat250.pollapp.repository.inmem.UserRepoInMem;
 import no.hvl.dat250.pollapp.repository.inmem.VoteRepoInMem;
@@ -27,13 +27,13 @@ import java.time.temporal.ChronoUnit;
 public class RedisApplication {
     static final String REDIS_URL = "redis://localhost:6379";
 
-    static PollRepo polls = new PollRepoInMem();
-    static UserRepo users = new UserRepoInMem();
-    static VoteRepo votes = new VoteRepoInMem();
+    static final PollRepo polls = new PollRepoInMem();
+    static final UserRepo users = new UserRepoInMem();
+    static final VoteRepo votes = new VoteRepoInMem();
 
-    static PollService pollService = new RedisPollService(users, polls, votes, Clock.systemUTC());
-    static UserService userService = new UserServiceImpl(users, polls, votes, Clock.systemUTC());
-    static VoteService voteService = new VoteServiceImpl(users, polls, votes, Clock.systemUTC());
+    static final PollService pollService = new RedisPollService(users, polls, votes, Clock.systemUTC());
+    static final UserService userService = new UserServiceImpl(users, polls, votes, Clock.systemUTC());
+    static final VoteService voteService = new VoteServiceImpl(users, polls, votes, Clock.systemUTC());
 
 
     public static Poll setData() {
@@ -43,7 +43,7 @@ public class RedisApplication {
         User d = userService.create("david", "mail@mail.mail", "");
 
         Poll p = pollService.create(
-                "Pineapple on Pizza", 1, false, a.getId(),
+                "Pineapple on Pizza", 1, false, a.getIdAsUUID(),
                 Instant.now().minus(10, ChronoUnit.DAYS),
                 Instant.now().plus(10, ChronoUnit.DAYS),
                 null);
@@ -51,10 +51,10 @@ public class RedisApplication {
         VoteOption o2 = p.addVoteOption("Mamma mia, nooooo!");
         VoteOption o3 = p.addVoteOption("I do not really care ...");
 
-        pollService.castVote(a.getId(), p.getId(), o1.getId());
-        pollService.castVote(b.getId(), p.getId(), o2.getId());
-        pollService.castVote(c.getId(), p.getId(), o1.getId());
-        pollService.castVote(d.getId(), p.getId(), o3.getId());
+        pollService.castVote(a.getIdAsUUID(), p.getIdAsUUID(), o1.getIdAsUUID());
+        pollService.castVote(b.getIdAsUUID(), p.getIdAsUUID(), o2.getIdAsUUID());
+        pollService.castVote(c.getIdAsUUID(), p.getIdAsUUID(), o1.getIdAsUUID());
+        pollService.castVote(d.getIdAsUUID(), p.getIdAsUUID(), o3.getIdAsUUID());
 
         return p;
     }
@@ -62,9 +62,9 @@ public class RedisApplication {
     public static void castTestVote() {
         voteService.list().getFirst();
         pollService.castVote(
-                users.findAll().getFirst().getId(),
-                polls.findAll().getFirst().getId(),
-                polls.findAll().getFirst().getOptions().getFirst().getId()
+                users.findAll().getFirst().getIdAsUUID(),
+                polls.findAll().getFirst().getIdAsUUID(),
+                polls.findAll().getFirst().getOptions().getFirst().getIdAsUUID()
         );
     }
 
@@ -85,15 +85,15 @@ public class RedisApplication {
     public static void getAggregateVotes(Poll p) {
         UnifiedJedis jedis = new UnifiedJedis(REDIS_URL);
 
-        String ttl = jedis.hget("poll:" + p.getId(), "ttl");
-        String valid = jedis.hget("poll:" + p.getId(), "valid");
+        String ttl = jedis.hget("poll:" + p.getIdAsUUID(), "ttl");
+        String valid = jedis.hget("poll:" + p.getIdAsUUID(), "valid");
         if (ttl == null || ttl.isBlank() || Long.parseLong(ttl) < Instant.now().getEpochSecond() ||
                 valid == null || valid.isBlank() || !valid.equals("true")) {
-            System.out.println("No poll with title '" + p.getId() + "' found in cache");
+            System.out.println("No poll with title '" + p.getIdAsUUID() + "' found in cache");
             addToCache(p);
         }
 
-        System.out.println(jedis.hgetAll("poll:" + p.getId()));
+        System.out.println(jedis.hgetAll("poll:" + p.getIdAsUUID()));
 
         jedis.close();
     }
@@ -102,14 +102,14 @@ public class RedisApplication {
         UnifiedJedis jedis = new UnifiedJedis(REDIS_URL);
 
         String ttl = "" + Instant.now().plus(10, ChronoUnit.MINUTES).getEpochSecond();
-        jedis.hset("poll:" + p.getId().toString(), "title", p.getQuestion());
-        jedis.hset("poll:" + p.getId().toString(), "ttl", ttl);
-        jedis.hset("poll:" + p.getId().toString(), "valid", "true");
+        jedis.hset("poll:" + p.getIdAsUUID(), "title", p.getQuestion());
+        jedis.hset("poll:" + p.getIdAsUUID(), "ttl", ttl);
+        jedis.hset("poll:" + p.getIdAsUUID(), "valid", "true");
 
         for (VoteOption o : p.getOptions()) {
-            jedis.hset("poll:" + p.getId().toString(), "option:" + o.getPresentationOrder()
+            jedis.hset("poll:" + p.getIdAsUUID(), "option:" + o.getPresentationOrder()
                     + ":caption", o.getCaption());
-            jedis.hset("poll:" + p.getId().toString(), "option:" + o.getPresentationOrder()
+            jedis.hset("poll:" + p.getIdAsUUID(), "option:" + o.getPresentationOrder()
                     + ":voteCount", "" + o.getVotes().size());
         }
 

@@ -1,9 +1,9 @@
 package no.hvl.dat250.pollapp.repository.inmem;
 
 import no.hvl.dat250.pollapp.domain.Vote;
-import no.hvl.dat250.pollapp.repository.VoteRepo;
+import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,14 +11,14 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 
-@Component
+@Repository
 public class VoteRepoInMem implements VoteRepo {
     private final Map<UUID, Vote> store = new HashMap<>();
 
     @Override
     public Vote save(Vote vote) {
-        if (vote.getId() == null) vote.setId(UUID.randomUUID());
-        store.put(vote.getId(), vote);
+        if (vote.getIdAsUUID() == null) vote.setId(UUID.randomUUID());
+        store.put(vote.getIdAsUUID(), vote);
         return vote;
     }
 

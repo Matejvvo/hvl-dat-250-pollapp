@@ -2,25 +2,26 @@ package no.hvl.dat250.pollapp.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import org.springframework.data.annotation.Reference;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-@Entity
+@RedisHash("votes")
 public class Vote {
     // --- Attributes ---
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
     private Instant publishedAt;
 
     // --- Associations ---
-    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference(value = "vote-user")
+    @Reference
     private User voter;
-    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference(value = "option-vote")
+    @Reference
     private VoteOption option;
 
     // --- Public Bean Constructor ---
@@ -28,12 +29,16 @@ public class Vote {
     }
 
     // --- Getters & Setters ---
-    public UUID getId() {
-        return id;
+    public UUID getIdAsUUID() {
+        return UUID.fromString(id);
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public String getId() {
+        return this.id;
+    }
+
+    public void setId(UUID uuid) {
+        this.id = uuid.toString();
     }
 
     public Instant getPublishedAt() {

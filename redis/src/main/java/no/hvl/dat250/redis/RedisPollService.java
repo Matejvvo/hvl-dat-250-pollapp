@@ -1,7 +1,9 @@
 package no.hvl.dat250.redis;
 
 import no.hvl.dat250.pollapp.domain.Vote;
-import no.hvl.dat250.pollapp.repository.*;
+import no.hvl.dat250.pollapp.repository.interfaces.PollRepo;
+import no.hvl.dat250.pollapp.repository.interfaces.UserRepo;
+import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
 import no.hvl.dat250.pollapp.service.impl.PollServiceImpl;
 import redis.clients.jedis.UnifiedJedis;
 

@@ -39,7 +39,7 @@ class PollServiceImplIT {
                 "Q1?",
                 2,
                 false,
-                creator.getId(),
+                creator.getIdAsUUID(),
                 now.minus(1, ChronoUnit.HOURS),
                 now.plus(1, ChronoUnit.DAYS),
                 List.of()
@@ -56,13 +56,13 @@ class PollServiceImplIT {
         User creator = userService.create("u", "u@e.com", "x");
         Instant now = Instant.now(clock) ;
 
-        assertThat(pollService.create(null, 1, false, creator.getId(), now, now.plusSeconds(1), List.of())).isNull();
-        assertThat(pollService.create("   ", 1, false, creator.getId(), now, now.plusSeconds(1), List.of())).isNull();
-        assertThat(pollService.create("ok", 0, false, creator.getId(), now, now.plusSeconds(1), List.of())).isNull();
+        assertThat(pollService.create(null, 1, false, creator.getIdAsUUID(), now, now.plusSeconds(1), List.of())).isNull();
+        assertThat(pollService.create("   ", 1, false, creator.getIdAsUUID(), now, now.plusSeconds(1), List.of())).isNull();
+        assertThat(pollService.create("ok", 0, false, creator.getIdAsUUID(), now, now.plusSeconds(1), List.of())).isNull();
         assertThat(pollService.create("ok", 1, false, null, now, now.plusSeconds(1), List.of())).isNull();
-        assertThat(pollService.create("ok", 1, false, creator.getId(), null, now.plusSeconds(1), List.of())).isNull();
-        assertThat(pollService.create("ok", 1, false, creator.getId(), now, null, List.of())).isNull();
-        assertThat(pollService.create("ok", 1, false, creator.getId(), now.plusSeconds(10), now, List.of())).isNull();
+        assertThat(pollService.create("ok", 1, false, creator.getIdAsUUID(), null, now.plusSeconds(1), List.of())).isNull();
+        assertThat(pollService.create("ok", 1, false, creator.getIdAsUUID(), now, null, List.of())).isNull();
+        assertThat(pollService.create("ok", 1, false, creator.getIdAsUUID(), now.plusSeconds(10), now, List.of())).isNull();
     }
 
     @Test
@@ -70,15 +70,15 @@ class PollServiceImplIT {
         User creator = userService.create("creator", "c@x.com", "x");
         Poll poll = openPublicPoll(creator);
 
-        VoteOption a0 = pollService.addVoteOption(poll.getId(), "Alpha");
-        VoteOption a1 = pollService.addVoteOption(poll.getId(), "Beta");
-        VoteOption dup = pollService.addVoteOption(poll.getId(), "alpha"); // duplicate (case-insensitive)
+        VoteOption a0 = pollService.addVoteOption(poll.getIdAsUUID(), "Alpha");
+        VoteOption a1 = pollService.addVoteOption(poll.getIdAsUUID(), "Beta");
+        VoteOption dup = pollService.addVoteOption(poll.getIdAsUUID(), "alpha"); // duplicate (case-insensitive)
 
         assertThat(a0).isNotNull();
         assertThat(a1).isNotNull();
         assertThat(dup).isNull();
 
-        List<VoteOption> options = pollService.listVoteOptions(poll.getId());
+        List<VoteOption> options = pollService.listVoteOptions(poll.getIdAsUUID());
         assertThat(options).extracting(VoteOption::getCaption).containsExactly("Alpha", "Beta");
         assertThat(options).extracting(VoteOption::getPresentationOrder).containsExactly(0, 1);
     }
@@ -91,14 +91,14 @@ class PollServiceImplIT {
                 "Q?",
                 1,
                 false,
-                creator.getId(),
+                creator.getIdAsUUID(),
                 now.minus(1, ChronoUnit.HOURS),
                 now.plus(1, ChronoUnit.DAYS),
                 List.of()
         );
 
         // attempt to reduce maxVotes and shorten validUntil: should be ignored
-        Poll p1 = pollService.update(poll.getId(), "  New Q  ", 0, true, now.plus(1, ChronoUnit.HOURS));
+        Poll p1 = pollService.update(poll.getIdAsUUID(), "  New Q  ", 0, true, now.plus(1, ChronoUnit.HOURS));
         assertThat(p1.getQuestion()).isEqualTo("New Q");
         assertThat(p1.getMaxVotesPerUser()).isEqualTo(1); // unchanged
         assertThat(p1.getIsPrivate()).isTrue();
@@ -106,7 +106,7 @@ class PollServiceImplIT {
 
         // increase both
         Instant oldValidUntil = poll.getValidUntil();
-        Poll p2 = pollService.update(poll.getId(), null, 3, false, poll.getValidUntil().plus(1, ChronoUnit.DAYS));
+        Poll p2 = pollService.update(poll.getIdAsUUID(), null, 3, false, poll.getValidUntil().plus(1, ChronoUnit.DAYS));
         assertThat(p2.getMaxVotesPerUser()).isEqualTo(3);
         assertThat(p2.getIsPrivate()).isFalse();
         assertThat(p2.getValidUntil()).isAfter(oldValidUntil);
@@ -123,22 +123,22 @@ class PollServiceImplIT {
                 "Q?",
                 1,
                 true,
-                creator.getId(),
+                creator.getIdAsUUID(),
                 now.minus(1, ChronoUnit.HOURS),
                 now.plus(1, ChronoUnit.DAYS),
                 List.of()
         );
-        VoteOption o = pollService.addVoteOption(poll.getId(), "O1");
+        VoteOption o = pollService.addVoteOption(poll.getIdAsUUID(), "O1");
 
         // not allowed yet
-        assertThat(pollService.castVote(blocked.getId(), poll.getId(), o.getId())).isNull();
+        assertThat(pollService.castVote(blocked.getIdAsUUID(), poll.getIdAsUUID(), o.getIdAsUUID())).isNull();
 
         // allow specific user
-        pollService.addAllowedVoter(poll.getId(), allowed.getId());
-        assertThat(pollService.castVote(allowed.getId(), poll.getId(), o.getId())).isNotNull();
+        pollService.addAllowedVoter(poll.getIdAsUUID(), allowed.getIdAsUUID());
+        assertThat(pollService.castVote(allowed.getIdAsUUID(), poll.getIdAsUUID(), o.getIdAsUUID())).isNotNull();
 
         // blocked remains blocked
-        assertThat(pollService.castVote(blocked.getId(), poll.getId(), o.getId())).isNull();
+        assertThat(pollService.castVote(blocked.getIdAsUUID(), poll.getIdAsUUID(), o.getIdAsUUID())).isNull();
     }
 
     @Test
@@ -146,20 +146,20 @@ class PollServiceImplIT {
         User c = userService.create("c", "c@x.com", "x");
         User v = userService.create("v", "v@x.com", "x");
         Poll p = openPublicPoll(c);
-        VoteOption a = pollService.addVoteOption(p.getId(), "A");
-        VoteOption b = pollService.addVoteOption(p.getId(), "B");
+        VoteOption a = pollService.addVoteOption(p.getIdAsUUID(), "A");
+        VoteOption b = pollService.addVoteOption(p.getIdAsUUID(), "B");
 
         // max 2 votes per user
-        Poll updatedMax = pollService.update(p.getId(), null, 2, false, p.getValidUntil());
+        Poll updatedMax = pollService.update(p.getIdAsUUID(), null, 2, false, p.getValidUntil());
         assertThat(updatedMax.getMaxVotesPerUser()).isEqualTo(2);
 
-        assertThat(pollService.castVote(v.getId(), p.getId(), a.getId())).isNotNull();
+        assertThat(pollService.castVote(v.getIdAsUUID(), p.getIdAsUUID(), a.getIdAsUUID())).isNotNull();
         // duplicate same option → blocked
-        assertThat(pollService.castVote(v.getId(), p.getId(), a.getId())).isNull();
+        assertThat(pollService.castVote(v.getIdAsUUID(), p.getIdAsUUID(), a.getIdAsUUID())).isNull();
         // a different option within cap → allowed
-        assertThat(pollService.castVote(v.getId(), p.getId(), b.getId())).isNotNull();
+        assertThat(pollService.castVote(v.getIdAsUUID(), p.getIdAsUUID(), b.getIdAsUUID())).isNotNull();
         // over cap → blocked
-        assertThat(pollService.castVote(v.getId(), p.getId(), b.getId())).isNull();
+        assertThat(pollService.castVote(v.getIdAsUUID(), p.getIdAsUUID(), b.getIdAsUUID())).isNull();
     }
 
     @Test
@@ -169,16 +169,16 @@ class PollServiceImplIT {
         User v2 = userService.create("v2", "v2@x.com", "x");
 
         Poll p = openPublicPoll(c);
-        VoteOption a = pollService.addVoteOption(p.getId(), "A \"quoted\"");
-        VoteOption b = pollService.addVoteOption(p.getId(), "B\nnewline");
+        VoteOption a = pollService.addVoteOption(p.getIdAsUUID(), "A \"quoted\"");
+        VoteOption b = pollService.addVoteOption(p.getIdAsUUID(), "B\nnewline");
 
-        pollService.castVote(v1.getId(), p.getId(), a.getId());
-        pollService.castVote(v2.getId(), p.getId(), b.getId());
+        pollService.castVote(v1.getIdAsUUID(), p.getIdAsUUID(), a.getIdAsUUID());
+        pollService.castVote(v2.getIdAsUUID(), p.getIdAsUUID(), b.getIdAsUUID());
 
-        assertThat(pollService.listPollVotes(p.getId())).hasSize(2);
+        assertThat(pollService.listPollVotes(p.getIdAsUUID())).hasSize(2);
 
-        String json = pollService.getAggregatedResults(p.getId());
-        assertThat(json).contains("\"pollId\":\"" + p.getId() + "\"");
+        String json = pollService.getAggregatedResults(p.getIdAsUUID());
+        assertThat(json).contains("\"pollId\":\"" + p.getIdAsUUID() + "\"");
         assertThat(json).contains("\"totalVotes\":2");
         assertThat(json).contains("\"caption\":\"A \\\"quoted\\\"\"");
         assertThat(json).contains("\"caption\":\"B\\nnewline\"");
@@ -193,12 +193,12 @@ class PollServiceImplIT {
         User v = userService.create("v", "v@x.com", "x");
 
         Poll p = openPublicPoll(c);
-        VoteOption a = pollService.addVoteOption(p.getId(), "A");
-        pollService.castVote(v.getId(), p.getId(), a.getId());
+        VoteOption a = pollService.addVoteOption(p.getIdAsUUID(), "A");
+        pollService.castVote(v.getIdAsUUID(), p.getIdAsUUID(), a.getIdAsUUID());
 
-        assertThat(pollService.listPollVotes(p.getId())).hasSize(1);
+        assertThat(pollService.listPollVotes(p.getIdAsUUID())).hasSize(1);
 
-        pollService.delete(p.getId());
+        pollService.delete(p.getIdAsUUID());
 
         // poll gone → listing votes by poll would be empty by definition
         assertThat(pollService.list()).doesNotContain(p);

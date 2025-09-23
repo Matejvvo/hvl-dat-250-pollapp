@@ -3,29 +3,30 @@ package no.hvl.dat250.pollapp.domain;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.springframework.data.annotation.Reference;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.time.Instant;
 import java.util.*;
 
-@Entity
+@RedisHash("polls")
 public class Poll {
     // --- Attributes ---
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
     private String question;
     private Instant publishedAt;
     private Instant validUntil;
     private int maxVotesPerUser;
     private boolean isPrivate;
-    @ManyToMany private Set<User> allowedVoters = new HashSet<>();
+    @Reference private Set<User> allowedVoters = new HashSet<>();
 
     // --- Associations ---
-    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference(value = "poll-user")
+    @Reference
     private User creator;
-    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "poll-option")
+    @Reference
     private List<VoteOption> options = new ArrayList<>();
 
     // --- Public Bean Constructor ---
@@ -33,12 +34,16 @@ public class Poll {
     }
 
     // --- Getters & Setters ---
-    public UUID getId() {
-        return id;
+    public UUID getIdAsUUID() {
+        return UUID.fromString(id);
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public String getId() {
+        return this.id;
+    }
+
+    public void setId(UUID uuid) {
+        this.id = uuid.toString();
     }
 
     public String getQuestion() {

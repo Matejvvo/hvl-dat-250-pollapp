@@ -1,6 +1,5 @@
 import {get, writable} from "svelte/store";
 
-const API_TEST_BASE = "http://localhost:8080/api";
 const API_BASE = "/api"
 
 async function fetchJSON(url, init) {

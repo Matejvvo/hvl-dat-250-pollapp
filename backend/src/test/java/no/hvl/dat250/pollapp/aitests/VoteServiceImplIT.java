@@ -38,7 +38,7 @@ class VoteServiceImplIT {
                 "Q?",
                 2,
                 false,
-                owner.getId(),
+                owner.getIdAsUUID(),
                 now.minus(1, ChronoUnit.HOURS),
                 now.plus(1, ChronoUnit.DAYS),
                 List.of()
@@ -51,19 +51,19 @@ class VoteServiceImplIT {
         User other = userService.create("other", "ot@x.com", "x");
 
         Poll p = openPoll(owner);
-        VoteOption a = pollService.addVoteOption(p.getId(), "A");
-        VoteOption b = pollService.addVoteOption(p.getId(), "B");
+        VoteOption a = pollService.addVoteOption(p.getIdAsUUID(), "A");
+        VoteOption b = pollService.addVoteOption(p.getIdAsUUID(), "B");
 
-        Vote v = pollService.castVote(owner.getId(), p.getId(), a.getId());
+        Vote v = pollService.castVote(owner.getIdAsUUID(), p.getIdAsUUID(), a.getIdAsUUID());
         assertThat(v).isNotNull();
 
         // non-owner cannot update
-        assertThat(voteService.update(v.getId(), other.getId(), b.getId())).isNull();
+        assertThat(voteService.update(v.getIdAsUUID(), other.getIdAsUUID(), b.getIdAsUUID())).isNull();
 
         // owner can switch within same poll
-        Vote updated = voteService.update(v.getId(), owner.getId(), b.getId());
+        Vote updated = voteService.update(v.getIdAsUUID(), owner.getIdAsUUID(), b.getIdAsUUID());
         assertThat(updated).isNotNull();
-        assertThat(updated.getOption().getId()).isEqualTo(b.getId());
+        assertThat(updated.getOption().getIdAsUUID()).isEqualTo(b.getIdAsUUID());
     }
 
     @Test
@@ -72,30 +72,30 @@ class VoteServiceImplIT {
 
         Poll p1 = openPoll(u);
         Poll p2 = openPoll(u);
-        VoteOption a1 = pollService.addVoteOption(p1.getId(), "A1");
-        VoteOption a2 = pollService.addVoteOption(p2.getId(), "A2");
+        VoteOption a1 = pollService.addVoteOption(p1.getIdAsUUID(), "A1");
+        VoteOption a2 = pollService.addVoteOption(p2.getIdAsUUID(), "A2");
 
-        Vote vote = pollService.castVote(u.getId(), p1.getId(), a1.getId());
+        Vote vote = pollService.castVote(u.getIdAsUUID(), p1.getIdAsUUID(), a1.getIdAsUUID());
         assertThat(vote).isNotNull();
 
         // cannot move vote to option from a different poll
-        assertThat(voteService.update(vote.getId(), u.getId(), a2.getId())).isNull();
+        assertThat(voteService.update(vote.getIdAsUUID(), u.getIdAsUUID(), a2.getIdAsUUID())).isNull();
     }
 
     @Test
     void update_respectsNoDuplicateSameOption_forSameUser() {
         User u = userService.create("u", "u@x.com", "x");
         Poll p = openPoll(u);
-        VoteOption a = pollService.addVoteOption(p.getId(), "A");
-        VoteOption b = pollService.addVoteOption(p.getId(), "B");
+        VoteOption a = pollService.addVoteOption(p.getIdAsUUID(), "A");
+        VoteOption b = pollService.addVoteOption(p.getIdAsUUID(), "B");
 
         // cast two votes (max 2)
-        Vote v1 = pollService.castVote(u.getId(), p.getId(), a.getId());
-        Vote v2 = pollService.castVote(u.getId(), p.getId(), b.getId());
+        Vote v1 = pollService.castVote(u.getIdAsUUID(), p.getIdAsUUID(), a.getIdAsUUID());
+        Vote v2 = pollService.castVote(u.getIdAsUUID(), p.getIdAsUUID(), b.getIdAsUUID());
         assertThat(List.of(v1, v2)).allMatch(Objects::nonNull);
 
         // try to update v2 to A → would duplicate option A for same user
-        assertThat(voteService.update(v2.getId(), u.getId(), a.getId())).isNull();
+        assertThat(voteService.update(v2.getIdAsUUID(), u.getIdAsUUID(), a.getIdAsUUID())).isNull();
     }
 
     @Test
@@ -108,13 +108,13 @@ class VoteServiceImplIT {
                 "Q?",
                 1,
                 false,
-                u.getId(),
+                u.getIdAsUUID(),
                 now.minus(2, ChronoUnit.DAYS),
                 now.minus(1, ChronoUnit.DAYS),
                 List.of()
         );
-        VoteOption o = pollService.addVoteOption(p.getId(), "O");
+        VoteOption o = pollService.addVoteOption(p.getIdAsUUID(), "O");
         // cannot even cast
-        assertThat(pollService.castVote(u.getId(), p.getId(), o.getId())).isNull();
+        assertThat(pollService.castVote(u.getIdAsUUID(), p.getIdAsUUID(), o.getIdAsUUID())).isNull();
     }
 }

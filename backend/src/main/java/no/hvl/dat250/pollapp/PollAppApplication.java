@@ -1,13 +1,10 @@
 package no.hvl.dat250.pollapp;
 
-import no.hvl.dat250.pollapp.domain.*;
 import no.hvl.dat250.pollapp.service.*;
 
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,18 +42,21 @@ public class PollAppApplication {
     @GetMapping("/init")
     public String init() {
         if (u.list().isEmpty() && p.list().isEmpty() && v.list().isEmpty()) {
-            UUID aliceId = u.create("Alice", "alice@me.com", "").getId();
-            UUID bobId = u.create("Bob", "bob@me.com", "").getId();
-            UUID charlieId = u.create("Charlie", "charlie@me.com", "").getId();
+            UUID aliceId = u.create("Alice", "alice@me.com", "").getIdAsUUID();
+            UUID bobId = u.create("Bob", "bob@me.com", "").getIdAsUUID();
+            UUID charlieId = u.create("Charlie", "charlie@me.com", "").getIdAsUUID();
 
-            UUID pollPizzaId = p.create("Ananas on pizza?", 1, false, aliceId, Instant.now(), Instant.now().plus(20, ChronoUnit.DAYS), Arrays.asList("yes", "no", "what?!")).getId();
-            UUID pollTestId = p.create("Test poll?", 1, false, bobId, Instant.now(), Instant.now().plus(20, ChronoUnit.DAYS), Arrays.asList("1", "2", "asdf", "3")).getId();
+            UUID pollPizzaId = p.create("Ananas on pizza?", 1, false, aliceId, Instant.now(), Instant.now().plus(20, ChronoUnit.DAYS), Arrays.asList("yes", "no", "what?!")).getIdAsUUID();
+            UUID pollTestId = p.create("Test poll?", 1, false, bobId, Instant.now(), Instant.now().plus(20, ChronoUnit.DAYS), Arrays.asList("1", "2", "asdf", "3")).getIdAsUUID();
 
-            p.castVote(aliceId, pollPizzaId, p.listVoteOptions(pollPizzaId).get(0).getId());
-            p.castVote(bobId, pollPizzaId, p.listVoteOptions(pollPizzaId).get(2).getId());
+            System.out.println(p.listVoteOptions(pollPizzaId));
+            System.out.println(p.get(pollPizzaId));
 
-            p.castVote(bobId, pollTestId, p.listVoteOptions(pollTestId).get(1).getId());
-            p.castVote(charlieId, pollTestId, p.listVoteOptions(pollTestId).get(1).getId());
+            p.castVote(aliceId, pollPizzaId, p.listVoteOptions(pollPizzaId).get(0).getIdAsUUID());
+            p.castVote(bobId, pollPizzaId, p.listVoteOptions(pollPizzaId).get(2).getIdAsUUID());
+
+            p.castVote(bobId, pollTestId, p.listVoteOptions(pollTestId).get(1).getIdAsUUID());
+            p.castVote(charlieId, pollTestId, p.listVoteOptions(pollTestId).get(1).getIdAsUUID());
         }
         return "OK";
     }

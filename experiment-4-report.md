@@ -14,7 +14,7 @@ I successfully imported the dependencies and added the provided testing code and
 
 Then I added the `@OneToMany` and `@ManyToOne` annotations to all the class association attributes. However, I forgot about `Set<User> allowedUsers` attribute in `Poll` which gave me a few tries to fix, before I noticed. I added `@ManyToMany` and let it automatically create the join table and its fields. Lastly H2 reservers the keyword `User` os I had to rename the table e.g. to `users`. Then all the tests passed.
 
-To inspect the db, i switched from in memory representation to a file storage: `.property(PersistenceConfiguration.JDBC_URL, "jdbc:h2:file:./polls-db")`. Then I imported it to `IDEA` to inspect the tables. 
+To inspect the db, I switched from in memory representation to a file storage: `.property(PersistenceConfiguration.JDBC_URL, "jdbc:h2:file:./polls-db")`. Then I imported it to `IDEA` to inspect the tables. 
 
 In total, 5 tables were created: `POLL`, `USERS`, `VOTE`, `VOTEOPTION` and the join table `POLL_USERS`. Each table has its corresponding attributes and only the `IDs` were renamed to `TABLE_ID`.
 

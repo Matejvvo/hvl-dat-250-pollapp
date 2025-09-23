@@ -19,6 +19,7 @@ public interface PollService {
     void delete(UUID pollId);
 
     VoteOption addVoteOption(UUID pollId, String caption);
+    VoteOption addVoteOption(UUID pollId, String caption, boolean justReturn);
 
     List<VoteOption> listVoteOptions(UUID pollId);
 

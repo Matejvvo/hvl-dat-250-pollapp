@@ -1,9 +1,9 @@
 package no.hvl.dat250.pollapp.repository.inmem;
 
 import no.hvl.dat250.pollapp.domain.User;
-import no.hvl.dat250.pollapp.repository.UserRepo;
+import no.hvl.dat250.pollapp.repository.interfaces.UserRepo;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,14 +11,14 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 
-@Component
+@Repository
 public class UserRepoInMem implements UserRepo {
     private final Map<UUID, User> store = new HashMap<>();
 
     @Override
     public User save(User user) {
-        if (user.getId() == null) user.setId(UUID.randomUUID());
-        store.put(user.getId(), user);
+        if (user.getIdAsUUID() == null) user.setId(UUID.randomUUID());
+        store.put(user.getIdAsUUID(), user);
         return user;
     }
 
