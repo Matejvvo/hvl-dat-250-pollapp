@@ -1,4 +1,3 @@
 rootProject.name = "pollapp"
 
-include(":backend")
-include(":frontend")
+include(":backend", ":frontend", "redis")

@@ -135,6 +135,7 @@ public class Poll {
     // JPA
     public VoteOption addVoteOption(String caption) {
         VoteOption voteOption = new VoteOption();
+        voteOption.setId(UUID.randomUUID());
         voteOption.setCaption(caption);
         voteOption.setPoll(this);
         voteOption.setPresentationOrder(this.options.size());

@@ -47,3 +47,9 @@ tasks.register("run") {
     description = "Alias for bootRun"
     dependsOn("bootRun")
 }
+
+tasks.register("redis") {
+    group = "application"
+    description = "Runs the redis CLI demo"
+    dependsOn(":redis:bootRun")
+}
