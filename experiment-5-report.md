@@ -102,6 +102,44 @@ redis-cli SHUTDOWN  # Stop the server
 
 I have successfully implemented a simple Redis demo in `redis/src/main/java/no/hvl/dat250/redis/RedisApplication.java`. The demo shows a basic use-case with 4 users, 1 poll, and some votes. On the first aggregates fetch, the information is calculated and stored in the cache. The second user then just receives the cached info. Each poll in the cache gets invalidated after 10 minutes or when a new vote is cast. This is demonstrated in the third aggregates fetch.
 
+Demo Output:
+
+```bash
+Try 1:
+No poll with title '52e2ba29-237d-4624-b0bd-7a47c4a45673' found in cache
+{valid=true, option:2:caption=I do not really care ..., option:2:voteCount=1, option:0:caption=Yes, yammy!, option:0:voteCount=2, title=Pineapple on Pizza, ttl=1758664392, option:1:caption=Mamma mia, nooooo!, option:1:voteCount=1}
+Try 2:
+{valid=true, option:2:caption=I do not really care ..., option:2:voteCount=1, option:0:caption=Yes, yammy!, option:0:voteCount=2, title=Pineapple on Pizza, ttl=1758664392, option:1:caption=Mamma mia, nooooo!, option:1:voteCount=1}
+Try 3:
+No poll with title '52e2ba29-237d-4624-b0bd-7a47c4a45673' found in cache
+{valid=true, option:2:caption=I do not really care ..., option:2:voteCount=1, option:0:caption=Yes, yammy!, option:0:voteCount=2, title=Pineapple on Pizza, ttl=1758664392, option:1:caption=Mamma mia, nooooo!, option:1:voteCount=1}
+```
+
+CLI Inspection:
+
+```bash
+127.0.0.1:6379> KEYS * 
+1) "poll:52e2ba29-237d-4624-b0bd-7a47c4a45673"
+127.0.0.1:6379> HGETALL "poll:52e2ba29-237d-4624-b0bd-7a47c4a45673"
+ 1) "valid"
+ 2) "true"
+ 3) "title"
+ 4) "Pineapple on Pizza"
+ 5) "ttl"
+ 6) "1758664392"
+ 7) "option:0:caption"
+ 8) "Yes, yammy!"
+ 9) "option:0:voteCount"
+10) "2"
+11) "option:1:caption"
+12) "Mamma mia, nooooo!"
+13) "option:1:voteCount"
+14) "1"
+15) "option:2:caption"
+16) "I do not really care ..."
+17) "option:2:voteCount"
+18) "1"
+```
 
 ## Implementation in PollApp
 
