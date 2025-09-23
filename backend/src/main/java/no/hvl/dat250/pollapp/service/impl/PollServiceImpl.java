@@ -7,6 +7,7 @@ import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
 import no.hvl.dat250.pollapp.service.PollService;
 
 import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -26,6 +27,7 @@ public class PollServiceImpl implements PollService {
         this.clock = clock;
     }
 
+    @Transactional
     @Override
     public Poll create(String question, int maxVotesPerUser, boolean isPrivate, UUID creatorId,
                        Instant publishedAt, Instant validUntil, List<String> options) {
@@ -37,7 +39,7 @@ public class PollServiceImpl implements PollService {
         if (creator == null) return null;
 
         Poll poll = new Poll();
-        poll.setId(UUID.randomUUID());
+//        poll.setId(UUID.randomUUID());
         poll.setQuestion(question.trim());
         poll.setPublishedAt(publishedAt);
         poll.setValidUntil(validUntil);
@@ -59,19 +61,22 @@ public class PollServiceImpl implements PollService {
         poll = pollRepo.save(poll);
         return poll;
     }
-
+    
+    @Transactional
     @Override
     public List<Poll> list() {
         if (pollRepo.empty()) return List.of();
         return pollRepo.findAll().stream().toList();
     }
 
+    @Transactional
     @Override
     public Poll get(UUID pollId) {
         if (pollId == null) return null;
         return pollRepo.findById(pollId);
     }
 
+    @Transactional
     @Override
     public Poll update(UUID pollId, String question, int maxVotesPerUser, boolean isPrivate, Instant validUntil) {
         if (pollId == null) return null;
@@ -90,6 +95,7 @@ public class PollServiceImpl implements PollService {
         return poll;
     }
 
+    @Transactional
     @Override
     public void delete(UUID pollId) {
         if (pollId == null) return;
@@ -108,6 +114,7 @@ public class PollServiceImpl implements PollService {
         pollRepo.deleteById(pollId);
     }
 
+    @Transactional
     @Override
     public VoteOption addVoteOption(UUID pollId, String caption) {
         if (pollId == null || caption == null || caption.isBlank()) return null;
@@ -123,7 +130,7 @@ public class PollServiceImpl implements PollService {
         int order = poll.getOptions().isEmpty() ? 0 : poll.getOptions().getLast().getPresentationOrder() + 1;
 
         VoteOption voteOption = new VoteOption();
-        voteOption.setId(UUID.randomUUID());
+//        voteOption.setId(UUID.randomUUID());
         voteOption.setCaption(caption.trim());
         voteOption.setPresentationOrder(order);
         voteOption.setPoll(poll);
@@ -133,6 +140,7 @@ public class PollServiceImpl implements PollService {
         return voteOption;
     }
 
+    @Transactional
     @Override
     public List<VoteOption> listVoteOptions(UUID pollId) {
         if (pollId == null) return List.of();
@@ -141,6 +149,7 @@ public class PollServiceImpl implements PollService {
                 .sorted(Comparator.comparing(VoteOption::getPresentationOrder)).toList();
     }
 
+    @Transactional
     @Override
     public void removeVoteOption(UUID pollId, UUID optionId) {
         if (pollId == null || optionId == null) return;
@@ -158,6 +167,7 @@ public class PollServiceImpl implements PollService {
         poll.getOptions().remove(option);
     }
 
+    @Transactional
     @Override
     public User addAllowedVoter(UUID pollId, UUID userId) {
         if (pollId == null || userId == null) return null;
@@ -172,12 +182,14 @@ public class PollServiceImpl implements PollService {
         return user;
     }
 
+    @Transactional
     @Override
     public List<User> listAllowedVoters(UUID pollId) {
         if (pollId == null) return List.of();
         return pollRepo.findById(pollId).getAllowedVoters().stream().toList();
     }
 
+    @Transactional
     @Override
     public void removeAllowedVoter(UUID pollId, UUID userId) {
         if (pollId == null || userId == null) return;
@@ -191,6 +203,7 @@ public class PollServiceImpl implements PollService {
         poll.getAllowedVoters().remove(user);
     }
 
+    @Transactional
     @Override
     public Vote castVote(UUID voterId, UUID pollId, UUID optionId) {
         if (pollId == null || voterId == null || optionId == null) return null;
@@ -225,7 +238,7 @@ public class PollServiceImpl implements PollService {
         if (alreadyVotedThisOption) return null;
 
         Vote vote = new Vote();
-        vote.setId(UUID.randomUUID());
+//        vote.setId(UUID.randomUUID());
         vote.setPublishedAt(Instant.now(clock));
         vote.setVoter(voter);
         vote.setOption(selectedOption);
@@ -238,6 +251,7 @@ public class PollServiceImpl implements PollService {
         return vote;
     }
 
+    @Transactional
     @Override
     public List<Vote> listPollVotes(UUID pollId) {
         if (pollId == null) return List.of();
@@ -246,6 +260,7 @@ public class PollServiceImpl implements PollService {
                 .flatMap(opt -> opt.getVotes().stream()).toList();
     }
 
+    @Transactional
     @Override
     // todo
     public String getAggregatedResults(UUID pollId) {

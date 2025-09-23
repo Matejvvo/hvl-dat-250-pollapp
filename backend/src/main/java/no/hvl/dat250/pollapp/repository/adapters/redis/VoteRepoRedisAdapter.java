@@ -1,4 +1,4 @@
-package no.hvl.dat250.pollapp.repository.adapters;
+package no.hvl.dat250.pollapp.repository.adapters.redis;
 
 import no.hvl.dat250.pollapp.domain.Vote;
 import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;

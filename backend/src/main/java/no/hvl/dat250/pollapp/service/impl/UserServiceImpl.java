@@ -7,6 +7,7 @@ import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
 import no.hvl.dat250.pollapp.service.UserService;
 
 import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
 
 import java.time.Clock;
 import java.util.HashSet;
@@ -27,13 +28,14 @@ public class UserServiceImpl implements UserService {
         this.clock = clock;
     }
 
+    @Transactional
     @Override
     public User create(String username, String email, String _passwordHash) {
         if (username == null || username.isBlank()) return null;
         if (email == null || email.isBlank()) return null;
 
         User user = new User();
-        user.setId(UUID.randomUUID());
+//        user.setId(UUID.randomUUID());
         user.setUsername(username.trim());
         user.setEmail(email.trim());
         user.setPolls(new HashSet<>());
@@ -43,12 +45,14 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    @Transactional
     @Override
     public List<User> list() {
         if (userRepo.empty()) return List.of();
         return userRepo.findAll().stream().toList();
     }
 
+    @Transactional
     @Override
     public User get(UUID userId) {
         if (userId == null) return null;
@@ -56,6 +60,7 @@ public class UserServiceImpl implements UserService {
         return userRepo.findById(userId);
     }
 
+    @Transactional
     @Override
     public User update(UUID userId, String username, String email) {
         if (userId == null) return null;
@@ -69,6 +74,7 @@ public class UserServiceImpl implements UserService {
         return existing;
     }
 
+    @Transactional
     @Override
     public void delete(UUID userId) {
         if (userId == null) return;
@@ -87,6 +93,7 @@ public class UserServiceImpl implements UserService {
         userRepo.deleteById(userId);
     }
 
+    @Transactional
     @Override
     public List<Poll> listPolls(UUID userId) {
         if (userId == null) return List.of();
@@ -94,6 +101,7 @@ public class UserServiceImpl implements UserService {
         return userRepo.findById(userId).getPolls().stream().toList();
     }
 
+    @Transactional
     @Override
     public List<Vote> listVotes(UUID userId) {
         if (userId == null) return List.of();

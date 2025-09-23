@@ -21,11 +21,11 @@ public class Vote {
     // --- Associations ---
     @JsonBackReference(value = "vote-user")
     @Reference
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private User voter;
     @JsonBackReference(value = "option-vote")
     @Reference
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private VoteOption option;
 
     // --- Public Bean Constructor ---

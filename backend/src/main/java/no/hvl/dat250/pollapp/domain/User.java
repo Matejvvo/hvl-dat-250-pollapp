@@ -26,11 +26,11 @@ public class User {
     // Associations
     @JsonManagedReference(value = "poll-user")
     @Reference
-    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<Poll> polls = new HashSet<>();
     @JsonManagedReference(value = "vote-user")
     @Reference
-    @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<Vote> votes = new HashSet<>();
 
     // --- Public Bean Constructor ---

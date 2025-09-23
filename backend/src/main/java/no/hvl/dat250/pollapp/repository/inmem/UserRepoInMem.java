@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 @Repository
-@Primary
 public class UserRepoInMem implements UserRepo {
     private final Map<UUID, User> store = new HashMap<>();
 

@@ -22,17 +22,17 @@ public class Poll {
     private int maxVotesPerUser;
     private boolean isPrivate;
     @Reference
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<User> allowedVoters = new HashSet<>();
 
     // --- Associations ---
     @JsonBackReference(value = "poll-user")
     @Reference
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private User creator;
     @JsonManagedReference(value = "poll-option")
     @Reference
-    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<VoteOption> options = new ArrayList<>();
 
     // --- Public Bean Constructor ---

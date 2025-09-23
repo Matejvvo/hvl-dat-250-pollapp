@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 @Repository
-@Primary
 public class PollRepoInMem implements PollRepo {
     private final Map<UUID, Poll> store = new HashMap<>();
 

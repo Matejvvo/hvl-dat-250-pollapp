@@ -14,7 +14,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 @EnableRedisRepositories(basePackages = "no.hvl.dat250.pollapp.repository.redis")
 public class RedisConfig {
-
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory();

@@ -24,11 +24,11 @@ public class VoteOption {
     // --- Associations ---
     @JsonBackReference(value = "poll-option")
     @Reference
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Poll poll;
     @JsonManagedReference(value = "option-vote")
     @Reference
-    @OneToMany(mappedBy = "option", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "option", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<Vote> votes = new HashSet<>();
 
     // --- Public Bean Constructor ---

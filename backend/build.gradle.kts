@@ -22,6 +22,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
+
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     implementation("org.apache.commons:commons-lang3:3.18.0")
@@ -32,6 +33,7 @@ dependencies {
 
     implementation("org.hibernate.orm:hibernate-core:7.1.1.Final")
     implementation("jakarta.persistence:jakarta.persistence-api:3.2.0")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("com.h2database:h2:2.3.232")
 }
 

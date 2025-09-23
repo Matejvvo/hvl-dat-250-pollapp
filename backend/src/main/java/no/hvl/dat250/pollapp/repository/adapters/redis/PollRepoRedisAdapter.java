@@ -1,8 +1,8 @@
-package no.hvl.dat250.pollapp.repository.adapters;
+package no.hvl.dat250.pollapp.repository.adapters.redis;
 
-import no.hvl.dat250.pollapp.domain.User;
-import no.hvl.dat250.pollapp.repository.interfaces.UserRepo;
-import no.hvl.dat250.pollapp.repository.redis.UserRepoRedis;
+import no.hvl.dat250.pollapp.domain.Poll;
+import no.hvl.dat250.pollapp.repository.interfaces.PollRepo;
+import no.hvl.dat250.pollapp.repository.redis.PollRepoRedis;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,28 +11,28 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Repository
-public class UserRepoRedisAdapter implements UserRepo {
-    private final UserRepoRedis springData;
+public class PollRepoRedisAdapter implements PollRepo {
+    private final PollRepoRedis springData;
 
-    public UserRepoRedisAdapter(UserRepoRedis springData) {
+    public PollRepoRedisAdapter(PollRepoRedis springData) {
         this.springData = springData;
     }
 
     @Override
-    public User save(User user) {
-        if (user.getIdAsUUID() == null) {
-            user.setId(UUID.randomUUID());
+    public Poll save(Poll poll) {
+        if (poll.getIdAsUUID() == null) {
+            poll.setId(UUID.randomUUID());
         }
-        return springData.save(user);
+        return springData.save(poll);
     }
 
     @Override
-    public User findById(UUID id) {
+    public Poll findById(UUID id) {
         return springData.findById(id.toString()).orElse(null);
     }
 
     @Override
-    public List<User> findAll() {
+    public List<Poll> findAll() {
         return StreamSupport.stream(springData.findAll().spliterator(), false).collect(Collectors.toList());
     }
 

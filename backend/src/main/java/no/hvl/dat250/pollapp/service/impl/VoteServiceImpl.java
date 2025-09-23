@@ -7,6 +7,7 @@ import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
 import no.hvl.dat250.pollapp.service.VoteService;
 
 import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -27,12 +28,14 @@ public class VoteServiceImpl implements VoteService {
         this.clock = clock;
     }
 
+    @Transactional
     @Override
     public List<Vote> list() {
         if (voteRepo.empty()) return List.of();
         return voteRepo.findAll().stream().toList();
     }
 
+    @Transactional
     @Override
     public Vote get(UUID voteId) {
         if (voteId == null) return null;
@@ -40,6 +43,7 @@ public class VoteServiceImpl implements VoteService {
         return voteRepo.findById(voteId);
     }
 
+    @Transactional
     @Override
     public Vote update(UUID voteId, UUID userId, UUID optionId) {
         if (userId == null || voteId == null || optionId == null) return null;
@@ -95,6 +99,7 @@ public class VoteServiceImpl implements VoteService {
         return vote;
     }
 
+    @Transactional
     @Override
     public void delete(UUID voteId) {
         if (voteId == null || !voteRepo.existsById(voteId)) return;

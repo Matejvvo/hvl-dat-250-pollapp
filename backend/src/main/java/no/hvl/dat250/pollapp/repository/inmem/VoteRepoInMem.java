@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 @Repository
-@Primary
 public class VoteRepoInMem implements VoteRepo {
     private final Map<UUID, Vote> store = new HashMap<>();
 
