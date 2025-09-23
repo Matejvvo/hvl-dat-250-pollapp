@@ -10,18 +10,22 @@ import java.util.Objects;
 import java.util.UUID;
 
 @RedisHash("votes")
+@Entity
 public class Vote {
     // --- Attributes ---
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
     private Instant publishedAt;
 
     // --- Associations ---
     @JsonBackReference(value = "vote-user")
     @Reference
+    @ManyToOne(fetch = FetchType.LAZY)
     private User voter;
     @JsonBackReference(value = "option-vote")
     @Reference
+    @ManyToOne(fetch = FetchType.LAZY)
     private VoteOption option;
 
     // --- Public Bean Constructor ---
@@ -30,6 +34,7 @@ public class Vote {
 
     // --- Getters & Setters ---
     public UUID getIdAsUUID() {
+        if (id == null) return null;
         return UUID.fromString(id);
     }
 

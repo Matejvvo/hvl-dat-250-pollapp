@@ -12,9 +12,11 @@ import java.util.Set;
 import java.util.UUID;
 
 @RedisHash("vote_options")
+@Entity
 public class VoteOption {
     // --- Attributes ---
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
     private String caption;
     private int presentationOrder;
@@ -22,9 +24,11 @@ public class VoteOption {
     // --- Associations ---
     @JsonBackReference(value = "poll-option")
     @Reference
+    @ManyToOne(fetch = FetchType.LAZY)
     private Poll poll;
     @JsonManagedReference(value = "option-vote")
     @Reference
+    @OneToMany(mappedBy = "option", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Vote> votes = new HashSet<>();
 
     // --- Public Bean Constructor ---
@@ -33,6 +37,7 @@ public class VoteOption {
 
     // --- Getters & Setters ---
     public UUID getIdAsUUID() {
+        if (id == null) return null;
         return UUID.fromString(id);
     }
 

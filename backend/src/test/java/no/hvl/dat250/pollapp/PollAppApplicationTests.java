@@ -35,7 +35,7 @@ class PollAppApplicationTests {
 
         // List all users
         List<User> usersAfterU1 = userService.list();
-        assertThat(usersAfterU1).extracting(User::getId).containsExactly(u1.getIdAsUUID());
+        assertThat(usersAfterU1).extracting(User::getIdAsUUID).containsExactly(u1.getIdAsUUID());
 
         // Create another user
         User u2 = userService.create("bob", "bob@example.com", "ignored");
@@ -44,7 +44,7 @@ class PollAppApplicationTests {
         // List all users again
         List<User> usersAfterU2 = userService.list();
         assertThat(usersAfterU2).hasSize(2);
-        assertThat(usersAfterU2).extracting(User::getId).contains(u1.getIdAsUUID(), u2.getIdAsUUID());
+        assertThat(usersAfterU2).extracting(User::getIdAsUUID).contains(u1.getIdAsUUID(), u2.getIdAsUUID());
 
         // User 1 creates a new poll
         Instant publishedAt = Instant.now().minus(1, ChronoUnit.HOURS);
@@ -70,7 +70,7 @@ class PollAppApplicationTests {
 
         // List polls
         List<Poll> polls = pollService.list();
-        assertThat(polls).extracting(Poll::getId).contains(poll.getIdAsUUID());
+        assertThat(polls).extracting(Poll::getIdAsUUID).contains(poll.getIdAsUUID());
 
         // User 2 votes on the poll
         Vote firstVote = pollService.castVote(u2.getIdAsUUID(), poll.getIdAsUUID(), red.getIdAsUUID());

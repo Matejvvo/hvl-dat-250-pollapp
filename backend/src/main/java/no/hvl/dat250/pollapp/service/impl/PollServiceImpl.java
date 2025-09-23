@@ -52,7 +52,8 @@ public class PollServiceImpl implements PollService {
         if (options != null && !options.isEmpty())
             for (String o : options)
                 if (o != null && !o.isBlank())
-                    poll.getOptions().add(addVoteOption(poll.getIdAsUUID(), o, true));
+                    addVoteOption(poll.getIdAsUUID(), o);
+//                    poll.getOptions().add(addVoteOption(poll.getIdAsUUID(), o, true));
 
         creator.getPolls().add(poll);
         poll = pollRepo.save(poll);
@@ -109,11 +110,6 @@ public class PollServiceImpl implements PollService {
 
     @Override
     public VoteOption addVoteOption(UUID pollId, String caption) {
-        return  addVoteOption(pollId, caption, false);
-    }
-
-    @Override
-    public VoteOption addVoteOption(UUID pollId, String caption, boolean justReturn) {
         if (pollId == null || caption == null || caption.isBlank()) return null;
 
         Poll poll = pollRepo.findById(pollId);
@@ -133,8 +129,7 @@ public class PollServiceImpl implements PollService {
         voteOption.setPoll(poll);
         voteOption.setVotes(new HashSet<>());
 
-        if (!justReturn)
-            poll.getOptions().add(voteOption);
+        poll.getOptions().add(voteOption);
         return voteOption;
     }
 

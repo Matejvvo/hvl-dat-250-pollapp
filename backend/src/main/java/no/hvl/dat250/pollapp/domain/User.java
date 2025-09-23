@@ -13,9 +13,12 @@ import java.util.Set;
 import java.util.UUID;
 
 @RedisHash("users")
+@Entity
+@Table(name = "users")
 public class User {
     // --- Attributes --
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
     private String username;
     private String email;
@@ -23,9 +26,11 @@ public class User {
     // Associations
     @JsonManagedReference(value = "poll-user")
     @Reference
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Poll> polls = new HashSet<>();
     @JsonManagedReference(value = "vote-user")
     @Reference
+    @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Vote> votes = new HashSet<>();
 
     // --- Public Bean Constructor ---
@@ -34,6 +39,7 @@ public class User {
 
     // --- Getters & Setters ---
     public UUID getIdAsUUID() {
+        if (id == null) return null;
         return UUID.fromString(id);
     }
 

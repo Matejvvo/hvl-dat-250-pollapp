@@ -3,7 +3,6 @@ package no.hvl.dat250.pollapp.repository.adapters;
 import no.hvl.dat250.pollapp.domain.Vote;
 import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
 import no.hvl.dat250.pollapp.repository.redis.VoteRepoRedis;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Repository
-@Primary
 public class VoteRepoRedisAdapter implements VoteRepo {
     private final VoteRepoRedis springDataRedisRepo;
 

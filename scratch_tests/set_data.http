@@ -1,5 +1,5 @@
 ### Base config
-@baseUrl = http://localhost:8080
+@baseUrl = http://localhost:8001
 @contentType = application/json
 @publishedAt = 2025-01-01T12:00:00Z
 @validUntil  = 2030-01-01T00:00:00Z

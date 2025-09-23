@@ -10,23 +10,29 @@ import java.time.Instant;
 import java.util.*;
 
 @RedisHash("polls")
+@Entity
 public class Poll {
     // --- Attributes ---
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
     private String question;
     private Instant publishedAt;
     private Instant validUntil;
     private int maxVotesPerUser;
     private boolean isPrivate;
-    @Reference private Set<User> allowedVoters = new HashSet<>();
+    @Reference
+    @ManyToMany
+    private Set<User> allowedVoters = new HashSet<>();
 
     // --- Associations ---
     @JsonBackReference(value = "poll-user")
     @Reference
+    @ManyToOne(fetch = FetchType.LAZY)
     private User creator;
     @JsonManagedReference(value = "poll-option")
     @Reference
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VoteOption> options = new ArrayList<>();
 
     // --- Public Bean Constructor ---
@@ -35,6 +41,7 @@ public class Poll {
 
     // --- Getters & Setters ---
     public UUID getIdAsUUID() {
+        if (id == null) return null;
         return UUID.fromString(id);
     }
 
@@ -140,7 +147,6 @@ public class Poll {
     // JPA
     public VoteOption addVoteOption(String caption) {
         VoteOption voteOption = new VoteOption();
-        voteOption.setId(UUID.randomUUID());
         voteOption.setCaption(caption);
         voteOption.setPoll(this);
         voteOption.setPresentationOrder(this.options.size());
