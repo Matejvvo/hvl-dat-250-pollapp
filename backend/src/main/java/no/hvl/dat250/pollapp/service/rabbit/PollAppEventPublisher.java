@@ -1,29 +1,8 @@
 package no.hvl.dat250.pollapp.service.rabbit;
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.stereotype.Service;
-
-@Service
-public class PollAppEventPublisher {
-    private final RabbitTemplate rabbitTemplate;
-
-    public PollAppEventPublisher(RabbitTemplate rabbitTemplate) {
-        this.rabbitTemplate = rabbitTemplate;
-    }
-
-    public void publishPollCreated(PollEventDTO dto) {
-        rabbitTemplate.convertAndSend("polls.x", "poll.created", dto);
-    }
-
-    public void publishVoteCast(VoteEventDTO dto) {
-        rabbitTemplate.convertAndSend("polls.x", "poll." + dto.getPollId() + ".vote.cast", dto);
-    }
-
-    public void publishVoteRemove(VoteEventDTO dto) {
-        rabbitTemplate.convertAndSend("polls.x", "poll." + dto.getPollId() + ".vote.removed", dto);
-    }
-
-    public void publishVoteUpdated(VoteEventDTO dto) {
-        rabbitTemplate.convertAndSend("polls.x", "poll." + dto.getPollId() + ".vote.updated", dto);
-    }
+public interface PollAppEventPublisher {
+    void publishPollCreated(PollEventDTO dto);
+    void publishVoteCast(VoteEventDTO dto);
+    void publishVoteRemove(VoteEventDTO dto);
+    void publishVoteUpdated(VoteEventDTO dto);
 }

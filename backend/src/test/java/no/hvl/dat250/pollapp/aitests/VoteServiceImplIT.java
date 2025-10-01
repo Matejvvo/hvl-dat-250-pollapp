@@ -8,9 +8,11 @@ import no.hvl.dat250.pollapp.service.interfaces.PollService;
 import no.hvl.dat250.pollapp.service.interfaces.UserService;
 import no.hvl.dat250.pollapp.service.interfaces.VoteService;
 
+import no.hvl.dat250.pollapp.service.rabbit.PollAppEventPublisherReal;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -27,7 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class VoteServiceImplIT {
-
+    @MockBean
+    PollAppEventPublisherReal publisher;
     @Autowired UserService userService;
     @Autowired PollService pollService;
     @Autowired VoteService voteService;
