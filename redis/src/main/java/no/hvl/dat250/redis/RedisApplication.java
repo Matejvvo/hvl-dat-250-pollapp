@@ -36,7 +36,7 @@ public class RedisApplication {
     @Autowired
     static PollAppEventPublisher event;
 
-    static final PollService pollService = new RedisPollService(users, polls, votes, Clock.systemUTC());
+    static final PollService pollService = new RedisPollService(users, polls, votes, Clock.systemUTC(), event);
     static final UserService userService = new UserServiceImpl(users, polls, votes);
     static final VoteService voteService = new VoteServiceImpl(users, votes, Clock.systemUTC(), event);
 

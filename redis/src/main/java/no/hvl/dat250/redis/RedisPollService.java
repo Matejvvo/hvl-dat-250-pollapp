@@ -5,6 +5,7 @@ import no.hvl.dat250.pollapp.repository.interfaces.PollRepo;
 import no.hvl.dat250.pollapp.repository.interfaces.UserRepo;
 import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
 import no.hvl.dat250.pollapp.service.impl.PollServiceImpl;
+import no.hvl.dat250.pollapp.service.rabbit.PollAppEventPublisher;
 import redis.clients.jedis.UnifiedJedis;
 
 import java.time.Clock;
@@ -16,8 +17,9 @@ public class RedisPollService extends PollServiceImpl {
     public RedisPollService(UserRepo userRepo,
                             PollRepo pollRepo,
                             VoteRepo voteRepo,
-                            Clock clock) {
-        super(userRepo, pollRepo, voteRepo, clock);
+                            Clock clock,
+                            PollAppEventPublisher eventPublisher) {
+        super(userRepo, pollRepo, voteRepo, clock, eventPublisher);
     }
 
     @Override

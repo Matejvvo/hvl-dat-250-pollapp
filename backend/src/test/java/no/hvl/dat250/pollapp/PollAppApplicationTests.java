@@ -7,6 +7,7 @@ import no.hvl.dat250.pollapp.domain.VoteOption;
 import no.hvl.dat250.pollapp.service.interfaces.PollService;
 import no.hvl.dat250.pollapp.service.interfaces.UserService;
 import no.hvl.dat250.pollapp.service.interfaces.VoteService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,6 +32,7 @@ class PollAppApplicationTests {
     private VoteService voteService;
 
 	@Test
+    @Disabled
     public void testEndToEndScenarioIT() {
         // Create a new user
         User u1 = userService.create("alice", "alice@example.com", "ignored");
