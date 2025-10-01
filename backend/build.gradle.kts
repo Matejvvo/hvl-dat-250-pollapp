@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "no.hvl.dat250"
-version = "1.2.3"
+version = "1.2.4"
 description = "Simple Poll & Voting App"
 
 java {
@@ -112,8 +112,15 @@ tasks.named<JavaExec>("bootRun") {
     isIgnoreExitValue = true
     jvmArgs("-Dspring.main.banner-mode=off")
     dependsOn(":frontend:copyWebApp")
-//    dependsOn("rabbitmqStart")
-//    finalizedBy("rabbitmqStop")
+}
+
+tasks.register<JavaExec>("bootRunMQ") {
+    standardInput = System.`in`
+    isIgnoreExitValue = true
+    jvmArgs("-Dspring.main.banner-mode=off")
+    dependsOn(":frontend:copyWebApp")
+    dependsOn("rabbitmqStart")
+    finalizedBy("rabbitmqStop")
 }
 
 tasks.named<ProcessResources>("processResources") {
