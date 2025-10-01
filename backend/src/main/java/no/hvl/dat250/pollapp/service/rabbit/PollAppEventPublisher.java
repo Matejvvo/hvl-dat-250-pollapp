@@ -1,14 +1,13 @@
 package no.hvl.dat250.pollapp.service.rabbit;
 
-import no.hvl.dat250.pollapp.domain.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PollEventPublisher {
+public class PollAppEventPublisher {
     private final RabbitTemplate rabbitTemplate;
 
-    public PollEventPublisher(RabbitTemplate rabbitTemplate) {
+    public PollAppEventPublisher(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
 

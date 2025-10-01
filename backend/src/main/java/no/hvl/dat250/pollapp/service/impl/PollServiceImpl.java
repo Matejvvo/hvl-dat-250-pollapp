@@ -10,7 +10,7 @@ import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
 import no.hvl.dat250.pollapp.service.interfaces.PollService;
 
 import no.hvl.dat250.pollapp.service.rabbit.PollEventDTO;
-import no.hvl.dat250.pollapp.service.rabbit.PollEventPublisher;
+import no.hvl.dat250.pollapp.service.rabbit.PollAppEventPublisher;
 import no.hvl.dat250.pollapp.service.rabbit.VoteEventDTO;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
@@ -25,9 +25,9 @@ public class PollServiceImpl implements PollService {
     private final PollRepo pollRepo;
     private final VoteRepo voteRepo;
     private final Clock clock;
-    private final PollEventPublisher publisher;
+    private final PollAppEventPublisher publisher;
 
-    public PollServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo, Clock clock,  PollEventPublisher publisher) {
+    public PollServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo, Clock clock,  PollAppEventPublisher publisher) {
         this.userRepo = userRepo;
         this.pollRepo = pollRepo;
         this.voteRepo = voteRepo;
@@ -219,6 +219,7 @@ public class PollServiceImpl implements PollService {
         User voter = userRepo.findById(voterId);
         Instant now = Instant.now(clock);
         if (poll == null || voter == null) return null;
+
         if (now.isAfter(poll.getValidUntil()) || now.isBefore(poll.getPublishedAt())) return null;
 
         // Check if voter is allowed
@@ -245,7 +246,6 @@ public class PollServiceImpl implements PollService {
         if (alreadyVotedThisOption) return null;
 
         Vote vote = new Vote();
-//        vote.setId(UUID.randomUUID());
         vote.setPublishedAt(Instant.now(clock));
         vote.setVoter(voter);
         vote.setOption(selectedOption);

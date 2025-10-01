@@ -39,6 +39,16 @@ public class RabbitConfig {
     }
 
     @Bean
+    public Queue voteCommandQueue() {
+        return QueueBuilder.durable("vote.cmd.q").build();
+    }
+
+    @Bean
+    public Binding voteCastCommandBinding(Queue voteCommandQueue, TopicExchange pollsExchange) {
+        return BindingBuilder.bind(voteCommandQueue).to(pollsExchange).with("vote.cmd.cast");
+    }
+
+    @Bean
     public MessageConverter jacksonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }

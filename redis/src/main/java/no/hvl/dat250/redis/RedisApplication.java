@@ -15,7 +15,7 @@ import no.hvl.dat250.pollapp.service.interfaces.VoteService;
 import no.hvl.dat250.pollapp.service.impl.UserServiceImpl;
 import no.hvl.dat250.pollapp.service.impl.VoteServiceImpl;
 
-import no.hvl.dat250.pollapp.service.rabbit.PollEventPublisher;
+import no.hvl.dat250.pollapp.service.rabbit.PollAppEventPublisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,7 +34,7 @@ public class RedisApplication {
     static final VoteRepo votes = new VoteRepoInMem();
 
     @Autowired
-    static PollEventPublisher event;
+    static PollAppEventPublisher event;
 
     static final PollService pollService = new RedisPollService(users, polls, votes, Clock.systemUTC());
     static final UserService userService = new UserServiceImpl(users, polls, votes);

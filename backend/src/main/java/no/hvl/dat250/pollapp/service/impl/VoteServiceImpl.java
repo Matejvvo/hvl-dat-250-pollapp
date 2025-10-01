@@ -8,7 +8,7 @@ import no.hvl.dat250.pollapp.repository.interfaces.UserRepo;
 import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
 import no.hvl.dat250.pollapp.service.interfaces.VoteService;
 
-import no.hvl.dat250.pollapp.service.rabbit.PollEventPublisher;
+import no.hvl.dat250.pollapp.service.rabbit.PollAppEventPublisher;
 import no.hvl.dat250.pollapp.service.rabbit.VoteEventDTO;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
@@ -23,9 +23,9 @@ public class VoteServiceImpl implements VoteService {
     private final UserRepo userRepo;
     private final VoteRepo voteRepo;
     private final Clock clock;
-    private final PollEventPublisher publisher;
+    private final PollAppEventPublisher publisher;
 
-    public VoteServiceImpl(UserRepo userRepo, VoteRepo voteRepo,  Clock clock,  PollEventPublisher publisher) {
+    public VoteServiceImpl(UserRepo userRepo, VoteRepo voteRepo,  Clock clock,  PollAppEventPublisher publisher) {
         this.userRepo = userRepo;
         this.voteRepo = voteRepo;
         this.clock = clock;
