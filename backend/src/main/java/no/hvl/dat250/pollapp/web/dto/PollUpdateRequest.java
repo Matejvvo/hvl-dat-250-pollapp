@@ -6,7 +6,7 @@ import java.time.Instant;
 
 public record PollUpdateRequest(
         String question,
-        @PositiveOrZero Integer maxVotesPerUser, // only apply if greater than current
+        @PositiveOrZero Integer maxVotesPerUser,
         Boolean isPrivate,
         Instant validUntil
 ) {}

@@ -9,17 +9,14 @@ import java.util.List;
 import java.util.Objects;
 
 public class PollEventDTO {
-    private String id;
-    private String question;
-    private Instant publishedAt;
-    private Instant validUntil;
-    private int maxVotesPerUser;
-    private boolean isPrivate;
-    private String creatorId;
-    private List<String> optionIds = new ArrayList<>();
-
-    public PollEventDTO() {
-    }
+    private final String id;
+    private final String question;
+    private final Instant publishedAt;
+    private final Instant validUntil;
+    private final int maxVotesPerUser;
+    private final boolean isPrivate;
+    private final String creatorId;
+    private final List<String> optionIds = new ArrayList<>();
 
     public PollEventDTO(Poll poll) {
         this.id = poll.getId();
@@ -37,64 +34,32 @@ public class PollEventDTO {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public Instant getPublishedAt() {
         return publishedAt;
-    }
-
-    public void setPublishedAt(Instant publishedAt) {
-        this.publishedAt = publishedAt;
     }
 
     public String getQuestion() {
         return question;
     }
 
-    public void setQuestion(String question) {
-        this.question = question;
-    }
-
     public Instant getValidUntil() {
         return validUntil;
-    }
-
-    public void setValidUntil(Instant validUntil) {
-        this.validUntil = validUntil;
     }
 
     public int getMaxVotesPerUser() {
         return maxVotesPerUser;
     }
 
-    public void setMaxVotesPerUser(int maxVotesPerUser) {
-        this.maxVotesPerUser = maxVotesPerUser;
-    }
-
-    public boolean isPrivate() {
+    public boolean getIsPrivate() {
         return isPrivate;
-    }
-
-    public void setPrivate(boolean aPrivate) {
-        isPrivate = aPrivate;
     }
 
     public String getCreatorId() {
         return creatorId;
     }
 
-    public void setCreatorId(String creatorId) {
-        this.creatorId = creatorId;
-    }
-
     public List<String> getOptionIds() {
         return optionIds;
-    }
-
-    public void setOptionIds(List<String> optionIds) {
-        this.optionIds = optionIds;
     }
 
     @Override
@@ -112,14 +77,14 @@ public class PollEventDTO {
     @Override
     public String toString() {
         return "PollEventDTO{" +
-                "id='" + id + '\'' +
-                ", question='" + question + '\'' +
-                ", publishedAt=" + publishedAt +
-                ", validUntil=" + validUntil +
-                ", maxVotesPerUser=" + maxVotesPerUser +
-                ", isPrivate=" + isPrivate +
-                ", creatorId='" + creatorId + '\'' +
-                ", optionIds=" + optionIds +
+                "id='" + this.getId() + '\'' +
+                ", question='" + this.getQuestion() + '\'' +
+                ", publishedAt=" + this.getPublishedAt() +
+                ", validUntil=" + this.getValidUntil() +
+                ", maxVotesPerUser=" + this.getMaxVotesPerUser() +
+                ", isPrivate=" + this.getIsPrivate() +
+                ", creatorId='" + this.getCreatorId() + '\'' +
+                ", optionIds=" + this.getOptionIds() +
                 '}';
     }
 }

@@ -78,8 +78,8 @@ jobs:
       - name: Run app in background
         run: nohup ./gradlew bootRun > app.log 2>&1 &
 
-      - name: Wait for app (60s)
-        run: npx wait-on --timeout 60000 http://localhost:8001/
+      - name: Wait for app (80s)
+        run: npx wait-on --timeout 80000 http://localhost:8001/
 
       - name: Run endpoint tests with httpyac
         env:

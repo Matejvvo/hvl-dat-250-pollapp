@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    User create(String username, String email, String passwordHash);
+    User create(String username, String email, String ignoredPasswordHash);
 
     List<User> list();
 

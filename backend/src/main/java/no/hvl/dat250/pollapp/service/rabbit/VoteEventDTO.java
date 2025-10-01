@@ -1,20 +1,16 @@
 package no.hvl.dat250.pollapp.service.rabbit;
 
-import jakarta.persistence.*;
 import no.hvl.dat250.pollapp.domain.Vote;
 
 import java.time.Instant;
 import java.util.Objects;
 
 public class VoteEventDTO {
-    private String id;
-    private Instant publishedAt;
-    private String voterId;
-    private String optionId;
-    private String pollId;
-
-    public VoteEventDTO() {
-    }
+    private final String id;
+    private final Instant publishedAt;
+    private final String voterId;
+    private final String optionId;
+    private final String pollId;
 
     public VoteEventDTO(Vote vote) {
         this.id = vote.getId();
@@ -28,40 +24,20 @@ public class VoteEventDTO {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public Instant getPublishedAt() {
         return publishedAt;
-    }
-
-    public void setPublishedAt(Instant publishedAt) {
-        this.publishedAt = publishedAt;
     }
 
     public String getVoterId() {
         return voterId;
     }
 
-    public void setVoterId(String voterId) {
-        this.voterId = voterId;
-    }
-
     public String getOptionId() {
         return optionId;
     }
 
-    public void setOptionId(String optionId) {
-        this.optionId = optionId;
-    }
-
     public String getPollId() {
         return pollId;
-    }
-
-    public void setPollId(String pollId) {
-        this.pollId = pollId;
     }
 
     @Override
@@ -79,11 +55,11 @@ public class VoteEventDTO {
     @Override
     public String toString() {
         return "VoteEventDTO{" +
-                "id='" + id + '\'' +
-                ", publishedAt=" + publishedAt +
-                ", voterId='" + voterId + '\'' +
-                ", optionId='" + optionId + '\'' +
-                ", pollId='" + pollId + '\'' +
+                "id='" + this.getId() + '\'' +
+                ", publishedAt=" + this.getPublishedAt() +
+                ", voterId='" + this.getVoterId() + '\'' +
+                ", optionId='" + this.getOptionId() + '\'' +
+                ", pollId='" + this.getPollId() + '\'' +
                 '}';
     }
 }

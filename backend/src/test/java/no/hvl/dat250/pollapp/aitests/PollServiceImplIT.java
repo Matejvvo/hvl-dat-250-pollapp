@@ -7,11 +7,9 @@ import no.hvl.dat250.pollapp.domain.VoteOption;
 import no.hvl.dat250.pollapp.service.interfaces.PollService;
 import no.hvl.dat250.pollapp.service.interfaces.UserService;
 
-import no.hvl.dat250.pollapp.service.rabbit.PollAppEventPublisherReal;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -33,8 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DirtiesContext
 @Import(TestClockConfig.class)
 class PollServiceImplIT {
-    @MockBean
-    PollAppEventPublisherReal publisher;
     @Autowired Clock clock;
     @Autowired UserService userService;
     @Autowired PollService pollService;
