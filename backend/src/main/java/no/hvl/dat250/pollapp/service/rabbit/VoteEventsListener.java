@@ -37,8 +37,6 @@ public class VoteEventsListener {
         String command = commandFromRoutingKey(routingKey);
         switch (command) {
             case "cast"    -> pollService.castVote(voterId, pollId, optionId);
-            case "updated" -> voteService.update(voteId, voterId, optionId);
-            case "removed" -> voteService.delete(voteId);
             default -> System.out.println("Unknown command: " + command);
         }
     }
