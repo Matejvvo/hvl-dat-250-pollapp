@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "no.hvl.dat250"
-version = "1.2.2"
+version = "1.2.3"
 description = "Simple Poll & Voting App"
 
 java {
@@ -71,12 +71,32 @@ tasks.register<Exec>("rabbitmqStart") {
 tasks.register<Exec>("rabbitmqStop") {
     group = "rabbitmq"
     description = "Stop detached RabbitMQ node"
-    commandLine(
-        "bash",
-        "-lc",
-        """export PATH="/opt/homebrew/bin:/usr/local/bin:${'$'}PATH"; rabbitmqctl -n rabbit@localhost stop || true"""
-    )
+    mustRunAfter("bootRun")
     isIgnoreExitValue = true
+
+    environment(
+        "RABBITMQ_NODENAME" to "rabbit@localhost",
+        "RABBITMQ_NODE_PORT" to "5672",
+    )
+
+    commandLine(
+        "bash", "-lc", """
+      set -e
+      export PATH="/opt/homebrew/sbin:/opt/homebrew/bin:/usr/local/sbin:/usr/local/bin:${'$'}PATH"
+
+      for i in {1..40}; do
+        if rabbitmq-diagnostics -q ping >/dev/null 2>&1; then
+          rabbitmqctl -n rabbit@localhost stop
+          echo "RabbitMQ is Stopped."
+          exit 0
+        fi
+        sleep 0.5
+      done
+
+
+      exit 0
+    """.trimIndent()
+    )
 }
 
 tasks.withType<Test> {
@@ -87,10 +107,13 @@ tasks.named("build") {
     dependsOn(":frontend:copyWebApp")
 }
 
-tasks.named("bootRun") {
+tasks.named<JavaExec>("bootRun") {
+    standardInput = System.`in`
+    isIgnoreExitValue = true
+    jvmArgs("-Dspring.main.banner-mode=off")
     dependsOn(":frontend:copyWebApp")
-    dependsOn("rabbitmqStart")
-    finalizedBy("rabbitmqStop")
+//    dependsOn("rabbitmqStart")
+//    finalizedBy("rabbitmqStop")
 }
 
 tasks.named<ProcessResources>("processResources") {

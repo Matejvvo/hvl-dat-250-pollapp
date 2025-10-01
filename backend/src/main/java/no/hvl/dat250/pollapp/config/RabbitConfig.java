@@ -1,8 +1,10 @@
 package no.hvl.dat250.pollapp.config;
 
+import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -57,6 +59,23 @@ public class RabbitConfig {
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, MessageConverter jacksonMessageConverter) {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(jacksonMessageConverter);
+        template.setMandatory(true);
         return template;
+    }
+
+    public interface EventBus {
+        boolean send(String routingKey, Object payload);
+    }
+
+    @Bean
+    public EventBus eventBus(RabbitTemplate rabbitTemplate) {
+        return (routingKey, payload) -> {
+            try {
+                rabbitTemplate.convertAndSend(EXCHANGE, routingKey, payload);
+                return true;
+            } catch (AmqpException e) {
+                return false;
+            }
+        };
     }
 }
