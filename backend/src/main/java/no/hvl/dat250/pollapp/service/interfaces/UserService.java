@@ -1,6 +1,8 @@
-package no.hvl.dat250.pollapp.service;
+package no.hvl.dat250.pollapp.service.interfaces;
 
-import no.hvl.dat250.pollapp.domain.*;
+import no.hvl.dat250.pollapp.domain.Poll;
+import no.hvl.dat250.pollapp.domain.User;
+import no.hvl.dat250.pollapp.domain.Vote;
 
 import java.util.List;
 import java.util.UUID;

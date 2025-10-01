@@ -1,15 +1,16 @@
 package no.hvl.dat250.pollapp.service.impl;
 
-import no.hvl.dat250.pollapp.domain.*;
+import no.hvl.dat250.pollapp.domain.Poll;
+import no.hvl.dat250.pollapp.domain.User;
+import no.hvl.dat250.pollapp.domain.Vote;
 import no.hvl.dat250.pollapp.repository.interfaces.PollRepo;
 import no.hvl.dat250.pollapp.repository.interfaces.UserRepo;
 import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
-import no.hvl.dat250.pollapp.service.UserService;
+import no.hvl.dat250.pollapp.service.interfaces.UserService;
 
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
-import java.time.Clock;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -19,13 +20,11 @@ public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
     private final PollRepo pollRepo;
     private final VoteRepo voteRepo;
-    private final Clock clock;
 
-    public UserServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo, Clock clock) {
+    public UserServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo) {
         this.userRepo = userRepo;
         this.pollRepo = pollRepo;
         this.voteRepo = voteRepo;
-        this.clock = clock;
     }
 
     @Transactional

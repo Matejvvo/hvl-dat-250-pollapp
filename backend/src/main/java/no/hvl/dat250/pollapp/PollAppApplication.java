@@ -1,7 +1,8 @@
 package no.hvl.dat250.pollapp;
 
-import no.hvl.dat250.pollapp.service.*;
-
+import no.hvl.dat250.pollapp.service.interfaces.PollService;
+import no.hvl.dat250.pollapp.service.interfaces.UserService;
+import no.hvl.dat250.pollapp.service.interfaces.VoteService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;

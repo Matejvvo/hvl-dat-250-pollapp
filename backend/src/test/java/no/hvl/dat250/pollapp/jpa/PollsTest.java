@@ -3,6 +3,10 @@ package no.hvl.dat250.pollapp.jpa;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceConfiguration;
+import no.hvl.dat250.pollapp.domain.Poll;
+import no.hvl.dat250.pollapp.domain.User;
+import no.hvl.dat250.pollapp.domain.Vote;
+import no.hvl.dat250.pollapp.domain.VoteOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,8 +15,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import no.hvl.dat250.pollapp.domain.*;
 
 public class PollsTest {
 

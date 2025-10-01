@@ -1,7 +1,9 @@
-package no.hvl.dat250.pollapp.web;
+package no.hvl.dat250.pollapp.web.controller;
 
-import no.hvl.dat250.pollapp.domain.*;
-import no.hvl.dat250.pollapp.service.UserService;
+import no.hvl.dat250.pollapp.domain.Poll;
+import no.hvl.dat250.pollapp.domain.User;
+import no.hvl.dat250.pollapp.domain.Vote;
+import no.hvl.dat250.pollapp.service.interfaces.UserService;
 import no.hvl.dat250.pollapp.web.dto.UserCreateRequest;
 import no.hvl.dat250.pollapp.web.dto.UserUpdateRequest;
 import org.springframework.web.bind.annotation.*;

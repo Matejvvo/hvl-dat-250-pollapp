@@ -9,12 +9,14 @@ import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
 import no.hvl.dat250.pollapp.repository.inmem.PollRepoInMem;
 import no.hvl.dat250.pollapp.repository.inmem.UserRepoInMem;
 import no.hvl.dat250.pollapp.repository.inmem.VoteRepoInMem;
-import no.hvl.dat250.pollapp.service.PollService;
-import no.hvl.dat250.pollapp.service.UserService;
-import no.hvl.dat250.pollapp.service.VoteService;
+import no.hvl.dat250.pollapp.service.interfaces.PollService;
+import no.hvl.dat250.pollapp.service.interfaces.UserService;
+import no.hvl.dat250.pollapp.service.interfaces.VoteService;
 import no.hvl.dat250.pollapp.service.impl.UserServiceImpl;
 import no.hvl.dat250.pollapp.service.impl.VoteServiceImpl;
 
+import no.hvl.dat250.pollapp.service.rabbit.PollEventPublisher;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import redis.clients.jedis.UnifiedJedis;
@@ -31,9 +33,12 @@ public class RedisApplication {
     static final UserRepo users = new UserRepoInMem();
     static final VoteRepo votes = new VoteRepoInMem();
 
+    @Autowired
+    static PollEventPublisher event;
+
     static final PollService pollService = new RedisPollService(users, polls, votes, Clock.systemUTC());
-    static final UserService userService = new UserServiceImpl(users, polls, votes, Clock.systemUTC());
-    static final VoteService voteService = new VoteServiceImpl(users, polls, votes, Clock.systemUTC());
+    static final UserService userService = new UserServiceImpl(users, polls, votes);
+    static final VoteService voteService = new VoteServiceImpl(users, votes, Clock.systemUTC(), event);
 
 
     public static Poll setData() {

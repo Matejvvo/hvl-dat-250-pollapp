@@ -35,6 +35,8 @@ dependencies {
     implementation("jakarta.persistence:jakarta.persistence-api:3.2.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("com.h2database:h2:2.3.232")
+
+    implementation("org.springframework.boot:spring-boot-starter-amqp")
 }
 
 tasks.withType<Test> {

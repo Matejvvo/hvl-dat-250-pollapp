@@ -3,7 +3,6 @@ package no.hvl.dat250.pollapp.repository.inmem;
 import no.hvl.dat250.pollapp.domain.Poll;
 import no.hvl.dat250.pollapp.repository.interfaces.PollRepo;
 
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

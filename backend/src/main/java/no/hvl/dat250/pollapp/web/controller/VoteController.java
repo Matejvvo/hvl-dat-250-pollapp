@@ -1,7 +1,7 @@
-package no.hvl.dat250.pollapp.web;
+package no.hvl.dat250.pollapp.web.controller;
 
 import no.hvl.dat250.pollapp.domain.Vote;
-import no.hvl.dat250.pollapp.service.VoteService;
+import no.hvl.dat250.pollapp.service.interfaces.VoteService;
 import no.hvl.dat250.pollapp.web.dto.VoteUpdateRequest;
 import org.springframework.web.bind.annotation.*;
 

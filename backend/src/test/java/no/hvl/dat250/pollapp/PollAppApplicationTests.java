@@ -1,8 +1,12 @@
 package no.hvl.dat250.pollapp;
 
-import no.hvl.dat250.pollapp.domain.*;
-import no.hvl.dat250.pollapp.service.*;
-
+import no.hvl.dat250.pollapp.domain.Poll;
+import no.hvl.dat250.pollapp.domain.User;
+import no.hvl.dat250.pollapp.domain.Vote;
+import no.hvl.dat250.pollapp.domain.VoteOption;
+import no.hvl.dat250.pollapp.service.interfaces.PollService;
+import no.hvl.dat250.pollapp.service.interfaces.UserService;
+import no.hvl.dat250.pollapp.service.interfaces.VoteService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,11 +1,15 @@
 package no.hvl.dat250.pollapp.service.impl;
 
-import no.hvl.dat250.pollapp.domain.*;
-import no.hvl.dat250.pollapp.repository.interfaces.PollRepo;
+import no.hvl.dat250.pollapp.domain.Poll;
+import no.hvl.dat250.pollapp.domain.User;
+import no.hvl.dat250.pollapp.domain.Vote;
+import no.hvl.dat250.pollapp.domain.VoteOption;
 import no.hvl.dat250.pollapp.repository.interfaces.UserRepo;
 import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
-import no.hvl.dat250.pollapp.service.VoteService;
+import no.hvl.dat250.pollapp.service.interfaces.VoteService;
 
+import no.hvl.dat250.pollapp.service.rabbit.PollEventPublisher;
+import no.hvl.dat250.pollapp.service.rabbit.VoteEventDTO;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
@@ -17,15 +21,15 @@ import java.util.UUID;
 @Service
 public class VoteServiceImpl implements VoteService {
     private final UserRepo userRepo;
-    private final PollRepo pollRepo;
     private final VoteRepo voteRepo;
     private final Clock clock;
+    private final PollEventPublisher publisher;
 
-    public VoteServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo,  Clock clock) {
+    public VoteServiceImpl(UserRepo userRepo, VoteRepo voteRepo,  Clock clock,  PollEventPublisher publisher) {
         this.userRepo = userRepo;
-        this.pollRepo = pollRepo;
         this.voteRepo = voteRepo;
         this.clock = clock;
+        this.publisher = publisher;
     }
 
     @Transactional
@@ -96,6 +100,8 @@ public class VoteServiceImpl implements VoteService {
         if (owner.getVotes() != null && !alreadyVoted)
             owner.getVotes().add(vote);
 
+        VoteEventDTO voteEventDTO = new VoteEventDTO(vote);
+        publisher.publishVoteUpdated(voteEventDTO);  // Publish event
         return vote;
     }
 
@@ -114,6 +120,8 @@ public class VoteServiceImpl implements VoteService {
         if (owner.getVotes() != null) owner.getVotes().remove(vote);
         if (option.getVotes() != null) option.getVotes().remove(vote);
 
+        VoteEventDTO voteEventDTO = new VoteEventDTO(vote);
+        publisher.publishVoteRemove(voteEventDTO);  // Publish event
         voteRepo.deleteById(voteId);
     }
 }

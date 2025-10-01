@@ -1,11 +1,17 @@
 package no.hvl.dat250.pollapp.service.impl;
 
-import no.hvl.dat250.pollapp.domain.*;
+import no.hvl.dat250.pollapp.domain.Poll;
+import no.hvl.dat250.pollapp.domain.User;
+import no.hvl.dat250.pollapp.domain.Vote;
+import no.hvl.dat250.pollapp.domain.VoteOption;
 import no.hvl.dat250.pollapp.repository.interfaces.PollRepo;
 import no.hvl.dat250.pollapp.repository.interfaces.UserRepo;
 import no.hvl.dat250.pollapp.repository.interfaces.VoteRepo;
-import no.hvl.dat250.pollapp.service.PollService;
+import no.hvl.dat250.pollapp.service.interfaces.PollService;
 
+import no.hvl.dat250.pollapp.service.rabbit.PollEventDTO;
+import no.hvl.dat250.pollapp.service.rabbit.PollEventPublisher;
+import no.hvl.dat250.pollapp.service.rabbit.VoteEventDTO;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
@@ -19,12 +25,14 @@ public class PollServiceImpl implements PollService {
     private final PollRepo pollRepo;
     private final VoteRepo voteRepo;
     private final Clock clock;
+    private final PollEventPublisher publisher;
 
-    public PollServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo, Clock clock) {
+    public PollServiceImpl(UserRepo userRepo,  PollRepo pollRepo, VoteRepo voteRepo, Clock clock,  PollEventPublisher publisher) {
         this.userRepo = userRepo;
         this.pollRepo = pollRepo;
         this.voteRepo = voteRepo;
         this.clock = clock;
+        this.publisher = publisher;
     }
 
     @Transactional
@@ -39,7 +47,6 @@ public class PollServiceImpl implements PollService {
         if (creator == null) return null;
 
         Poll poll = new Poll();
-//        poll.setId(UUID.randomUUID());
         poll.setQuestion(question.trim());
         poll.setPublishedAt(publishedAt);
         poll.setValidUntil(validUntil);
@@ -55,10 +62,11 @@ public class PollServiceImpl implements PollService {
             for (String o : options)
                 if (o != null && !o.isBlank())
                     addVoteOption(poll.getIdAsUUID(), o);
-//                    poll.getOptions().add(addVoteOption(poll.getIdAsUUID(), o, true));
 
         creator.getPolls().add(poll);
         poll = pollRepo.save(poll);
+        PollEventDTO pollEventDTO = new PollEventDTO(poll);
+        publisher.publishPollCreated(pollEventDTO);  // Publish event
         return poll;
     }
     
@@ -130,7 +138,6 @@ public class PollServiceImpl implements PollService {
         int order = poll.getOptions().isEmpty() ? 0 : poll.getOptions().getLast().getPresentationOrder() + 1;
 
         VoteOption voteOption = new VoteOption();
-//        voteOption.setId(UUID.randomUUID());
         voteOption.setCaption(caption.trim());
         voteOption.setPresentationOrder(order);
         voteOption.setPoll(poll);
@@ -248,6 +255,8 @@ public class PollServiceImpl implements PollService {
         if(voter.getVotes() == null) voter.setVotes(new HashSet<>());
         selectedOption.getVotes().add(vote);
         voter.getVotes().add(vote);
+        VoteEventDTO voteEventDTO = new VoteEventDTO(vote);
+        publisher.publishVoteCast(voteEventDTO); // Publish event
         return vote;
     }
 

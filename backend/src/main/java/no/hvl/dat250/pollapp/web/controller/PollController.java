@@ -1,7 +1,10 @@
-package no.hvl.dat250.pollapp.web;
+package no.hvl.dat250.pollapp.web.controller;
 
-import no.hvl.dat250.pollapp.domain.*;
-import no.hvl.dat250.pollapp.service.PollService;
+import no.hvl.dat250.pollapp.domain.Poll;
+import no.hvl.dat250.pollapp.domain.User;
+import no.hvl.dat250.pollapp.domain.Vote;
+import no.hvl.dat250.pollapp.domain.VoteOption;
+import no.hvl.dat250.pollapp.service.interfaces.PollService;
 
 import no.hvl.dat250.pollapp.web.dto.OptionCreateRequest;
 import no.hvl.dat250.pollapp.web.dto.PollCreateRequest;
