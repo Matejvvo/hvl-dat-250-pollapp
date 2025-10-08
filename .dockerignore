@@ -1,0 +1,11 @@
+.git
+.gradle
+.idea
+gradle
+imgs
+**/build
+**/node_modules
+**/dist
+**/.md
+**/db
+**/test
