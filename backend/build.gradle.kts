@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "no.hvl.dat250"
-version = "1.2.4"
+version = "1.3.0"
 description = "Simple Poll & Voting App"
 
 java {
@@ -101,6 +101,10 @@ tasks.register<Exec>("rabbitmqStop") {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.named("bootJar") {
+    dependsOn(":frontend:copyWebApp")
 }
 
 tasks.named("build") {
